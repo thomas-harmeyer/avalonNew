@@ -1,10 +1,10 @@
+import { Document, model, Schema } from "mongoose";
 import Mission, {
-  MissionSchema,
   missionCounts,
   MissionMetadata,
+  MissionSchema,
 } from "./Mission";
 import { User } from "./User";
-import { Document, Schema, model, connect, SchemaType } from "mongoose";
 
 interface GameMetadata {
   totalPlayers: number;
@@ -13,7 +13,7 @@ interface GameMetadata {
 }
 
 const GameMetadataSchema = new Schema<GameMetadata>({
-  totalPlayers: { type: Number, default: 5 },
+  totalPlayers: { type: Number, required: true, default: 5 },
   passedMissions: Number,
   failedMissions: Number,
 });
@@ -28,7 +28,7 @@ export interface Game {
 
 const GameSchema = new Schema<Game>({
   ope: { type: String, required: true },
-  users: { type: [String], required: true },
+  users: { type: [String], required: true, default: [] },
   data: { type: GameMetadataSchema, required: true },
   roles: {
     type: [String],
@@ -38,35 +38,90 @@ const GameSchema = new Schema<Game>({
   missions: {
     type: [[MissionSchema]],
     required: true,
-    default: function () {
-      const missions: Mission[][] = [];
-      const missionCount: { numOfPlayers: number[]; numOfFails: number[] } =
-        missionCounts[this.users.length as keyof typeof missionCounts];
-      for (let i = 0; i < missionCount.numOfPlayers.length; i++) {
-        missions.push([
-          {
-            data: {
-              numOfPlayers: missionCount.numOfPlayers[i],
-              numOfFails: missionCount.numOfFails[i],
-            } as MissionMetadata,
-          },
-        ] as Mission[]);
-      }
-      return missions;
-    },
+    default: [],
   },
 });
 
-const GameModel = model<Game>("Game", GameSchema);
+export async function defaultMissions(game: Game & Document<any, any, Game>) {
+  const missions: Mission[][] = [];
+  const missionCount: { numOfPlayers: number[]; numOfFails: number[] } =
+    missionCounts[game.users.length as keyof typeof missionCounts];
+  for (let i = 0; i < missionCount.numOfPlayers.length; i++) {
+    missions.push([
+      {
+        data: {
+          numOfPlayers: missionCount.numOfPlayers[i],
+          numOfFails: missionCount.numOfFails[i],
+        } as MissionMetadata,
+      },
+    ] as Mission[]);
+  }
+  game.missions = missions;
+  return await game.save();
+}
 
-async function findByOpe() {}
+GameSchema.post("save", function (next) {
+  console.log(this);
+  next();
+});
 
-async function addUser() {}
+export const GameModel = model<Game>("Game", GameSchema);
 
-async function removeUser(userToRemove: User) {}
+export async function findByOpe(ope: string) {
+  return await GameModel.findOne({ ope: ope }).then((game) => {
+    return game;
+  });
+}
 
-async function saveSettings(game: Game) {}
+export async function addUser(
+  game: Game & Document<any, any, Game>,
+  user: User
+) {
+  if (!containsUser(game, user)) {
+    console.log(user);
+    game.users.push(user);
+    return await game.save();
+  } else {
+    return game;
+  }
+}
 
-async function containsUser(game: Game, userContains: User) {}
+export async function removeUser(
+  game: Game & Document<any, any, Game>,
+  user: User
+) {
+  if (containsUser(game, user)) {
+    const userIndex = getIndexOfUser(game, user);
+    game.users.splice(userIndex, 1);
+    return await game.save();
+  } else {
+    return game;
+  }
+}
+
+export async function saveSettings(
+  game: Game & Document<any, any, Game>,
+  gameSettings: Game
+) {
+  game.roles = gameSettings.roles;
+  game.data.totalPlayers = gameSettings.data.totalPlayers;
+  return await game.save();
+}
+
+export function containsUser(game: Game, user: User) {
+  return (
+    game.users.filter((userToFilter: User) => {
+      return userToFilter._id === user._id;
+    }).length !== 0
+  );
+}
+
+export function getIndexOfUser(game: Game, user: User) {
+  return game.users.indexOf(
+    game.users.filter((userToFilter: User) => {
+      return user._id === userToFilter._id;
+    })[0]
+  );
+}
 
 export default Game;

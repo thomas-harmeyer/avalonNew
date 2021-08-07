@@ -1,10 +1,22 @@
 import cors from "cors";
 import express from "express";
 import { createServer } from "http";
+import { connect } from "mongoose";
 import { Server, Socket } from "socket.io";
 import { handleStartGame } from "./game-controller";
-import { Game, GameModel } from "./interfaces/Game";
+import {
+  addUser,
+  findByOpe,
+  Game,
+  removeUser,
+  saveSettings,
+} from "./interfaces/Game";
 import { User } from "./interfaces/User";
+
+connect("mongodb://localhost:27017/avalon", {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 
 const app = express();
 app.use(cors());
@@ -16,16 +28,16 @@ app.use(
 );
 
 app.get("/settings", (req: any, res: any) => {
-  GameModel.findByOpe(req.query.ope).then((game: Game | null) => {
-    req.send(game);
+  findByOpe(req.query.ope).then((game: Game | null) => {
+    res.send(game);
   });
 });
 
 app.post("/settings", (req: any, res: any) => {
-  GameModel.findByOpe(req.body.game.ope).then((game) => {
+  findByOpe(req.body.game.ope).then((game) => {
     if (game) {
-      game.removeUser(game.users[0]);
-      game.saveSettings(req.body.game).then((game: Game) => {
+      removeUser(game, game.users[0]);
+      saveSettings(game, req.body.game).then((game: Game) => {
         emitUsers(game);
         res.send(game);
       });
@@ -53,24 +65,26 @@ lobby.on("connection", (socket: Socket) => {
   const ope: string = socket.handshake.auth.ope;
   const user: User = {
     username: username,
+    ope: ope,
   };
 
   socket.join(ope);
-  GameModel.findByOpe(ope).then((game) => {
-    game?.addUser(user).then((game) => {
-      if (game) emitUsers(game);
-    });
+  findByOpe(ope).then((game) => {
+    if (game)
+      addUser(game, user).then((game) => {
+        if (game) emitUsers(game);
+      });
   });
   socket.on("connected", () => {
-    GameModel.findByOpe(ope).then((game) => {
+    findByOpe(ope).then((game) => {
       if (game) emitUsers(game);
     });
   });
   socket.on("disconnect", function (reason) {
     console.log("user disconnected");
-    GameModel.findByOpe(ope).then((game) => {
+    findByOpe(ope).then((game) => {
       if (game)
-        game.removeUser(user).then((game) => {
+        removeUser(game, user).then((game) => {
           if (game) emitUsers(game);
         });
     });
