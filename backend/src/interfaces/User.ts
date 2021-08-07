@@ -28,7 +28,7 @@ export const UserSchema = new Schema<User>({
 
 export const UserModel = model<User>("User", UserSchema);
 
-export async function addUser(user: User, ope: string) {}
+export async function addUser(user: User) {}
 
 export async function deleteUser(user: User) {}
 
