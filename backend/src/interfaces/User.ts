@@ -1,12 +1,6 @@
-import { connect, model, Schema } from "mongoose";
-
 interface UserMetadata {
   winRate: number;
 }
-
-const UserMetadataSchema = new Schema<UserMetadata>({
-  winRate: { type: Number, required: true, default: 0 },
-});
 
 export interface User {
   _id?: string;
@@ -16,16 +10,6 @@ export interface User {
   data?: UserMetadata;
   isGood?: boolean;
 }
-
-export const UserSchema = new Schema<User>({
-  username: { type: String, required: true },
-  ope: String,
-  role: String,
-  data: UserMetadataSchema,
-  isGood: Boolean,
-});
-
-export const UserModel = model<User>("User", UserSchema);
 
 export async function addUser(user: User) {}
 

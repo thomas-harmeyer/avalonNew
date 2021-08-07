@@ -1,7 +1,7 @@
 import { Roles } from "./../../frontend/src/interfaces/Roles";
 import cors from "cors";
 import express from "express";
-import Game, { findByOpe, findGame } from "./interfaces/Game";
+import Game, { findGame } from "./interfaces/Game";
 import { emitUsers } from "./index";
 
 export const app = express();

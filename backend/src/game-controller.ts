@@ -1,4 +1,4 @@
-import { defaultMissions, Game, GameModel } from "./interfaces/Game";
+import { defaultMissions, Game } from "./interfaces/Game";
 
 export function handleStartGame(game: Game) {
   defaultMissions(game);
@@ -55,9 +55,6 @@ export function handleStartGame(game: Game) {
     game.users[randomNumber1].role = game.users[randomNumber2].role;
     game.users[randomNumber2].role = tempRole;
   }
-  GameModel.updateOne({ ope: game.ope }, game).then((response) => {
-    return response;
-  });
 }
 
 function getRandomInt(max: number): number {

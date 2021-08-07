@@ -1,15 +1,9 @@
 import { createServer } from "http";
-import { connect } from "mongoose";
 import { Server, Socket } from "socket.io";
 import { app } from "./app-controller";
 import { handleStartGame } from "./game-controller";
 import { findGame, Game, games } from "./interfaces/Game";
 import { User } from "./interfaces/User";
-
-connect("mongodb://localhost:27017/avalon", {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
 
 const httpServer = createServer(app);
 const options = {
