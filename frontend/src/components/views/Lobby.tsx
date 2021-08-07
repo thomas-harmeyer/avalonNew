@@ -17,6 +17,7 @@ const Lobby = () => {
     tryConnect();
 
     function updateLobby(game: Game) {
+      console.log(game);
       if (game.users.length === 1 && !settingsHaveBeenUpdated) {
         setRedirectToSettings(true);
       } else {

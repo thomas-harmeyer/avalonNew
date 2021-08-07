@@ -4,7 +4,9 @@ import Mission, {
   MissionMetadata,
   MissionSchema,
 } from "./Mission";
-import { User, UserModel, UserSchema } from "./User";
+import { User, UserSchema } from "./User";
+
+export const games: Game[] = [];
 
 interface GameMetadata {
   totalPlayers: number;
@@ -41,7 +43,7 @@ const GameSchema = new Schema<Game>({
   },
 });
 
-export async function defaultMissions(game: Game & Document<any, any, Game>) {
+export async function defaultMissions(game: Game) {
   const missions: Mission[][] = [];
   const missionCount: { numOfPlayers: number[]; numOfFails: number[] } =
     missionCounts[game.users.length as keyof typeof missionCounts];
@@ -56,7 +58,6 @@ export async function defaultMissions(game: Game & Document<any, any, Game>) {
     ] as Mission[]);
   }
   game.missions = missions;
-  return await game.save();
 }
 
 GameSchema.post("save", function () {
@@ -66,7 +67,7 @@ GameSchema.post("save", function () {
 export const GameModel = model<Game>("Game", GameSchema);
 
 export async function findByOpe(ope: string) {
-  return await GameModel.findById(ope).then(async (game) => {
+  return await GameModel.findOne({ ope }).then(async (game) => {
     if (game) {
       return game;
     } else {
@@ -76,60 +77,27 @@ export async function findByOpe(ope: string) {
   });
 }
 
-export async function addUser(
-  game: Game & Document<any, any, Game>,
-  user: User
-) {
-  if (!containsUser(game, user)) {
-    console.log(user);
-    const userDoc = new UserModel(user);
-    game.users.push(userDoc);
-    return await game.save();
-  } else {
+export function createGame(ope: string) {
+  const game: Game = {
+    ope: ope,
+    users: [],
+    data: { totalPlayers: 5 },
+    roles: ["Merlin", "Percival", "Assassin", "Morgana"],
+    missions: [],
+  };
+  games.push(game);
+  return game;
+}
+
+export function findGame(ope: string) {
+  const game = games.find((game: Game) => {
+    return game.ope === ope;
+  });
+  if (game) {
     return game;
-  }
-}
-
-export async function removeUser(
-  game: Game & Document<any, any, Game>,
-  user: User
-) {
-  if (containsUser(game, user)) {
-    const userIndex = getIndexOfUser(game, user);
-    game.users.splice(userIndex, 1);
-    return await game.save();
   } else {
-    return game;
+    return createGame(ope);
   }
-}
-
-export async function saveSettings(
-  game: Game & Document<any, any, Game>,
-  gameSettings: Game
-) {
-  game.roles = gameSettings.roles;
-  game.data.totalPlayers = gameSettings.data.totalPlayers;
-  return await game.save();
-}
-
-export function containsUser(game: Game, user: User) {
-  return (
-    game.users.filter((userToFilter: User) => {
-      return userToFilter.username === user.username;
-    }).length !== 0
-  );
-}
-
-export function getIndexOfUser(game: Game, user: User) {
-  return game.users.indexOf(
-    game.users.filter((userToFilter: User) => {
-      return user.username === userToFilter.username;
-    })[0]
-  );
-}
-
-export function deleteAllGames() {
-  GameModel.deleteMany({}).exec();
 }
 
 export default Game;
