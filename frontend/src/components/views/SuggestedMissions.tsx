@@ -6,6 +6,10 @@ import User from "../../interfaces/User";
 type SuggestedMissionProps = {
   suggestedMissions: Mission[];
   users: User[];
+  setSelectedUsers: React.Dispatch<React.SetStateAction<User[]>>;
+  selectedUsers: User[];
+  suggestingMission: number;
+  voteOnSuggestedMission: (vote: boolean) => void;
 };
 
 const SuggestedMissions = ({
@@ -44,13 +48,22 @@ const SuggestedMissions = ({
                               }
                             ).length
                           ? "bg-warning"
+                          : selectedUsers.filter((missionUser: User) => {
+                              return missionUser._id === user._id;
+                            }).length && j === suggestingMission
+                          ? "bg-warning"
                           : ""
                       }
+                      onClick={() =>
+                        handleSelectUser(user, mission.data.numOfPlayers)
+                      }
                     >
-                      {mission &&
+                      {!(
+                        mission &&
                       mission.voteData &&
-                      mission.voteData.isVoting ? (
-                        <FaQuestion />
+                        mission.voteData.isVoting
+                      ) ? (
+                        <>{j === suggestingMission ? <FaQuestion /> : <></>}</>
                       ) : (
                         <>
                           {mission.voteData?.userVotes?.filter(
@@ -73,7 +86,7 @@ const SuggestedMissions = ({
               <tr>
                 <td># of players</td>
                 {suggestedMissions.map((mission: Mission, j: number) => (
-                  <td key={"suggestedMissions:" + j}>
+                  <td key={"suggestedMissionsNumOfPlayers:" + j}>
                     {mission.data.numOfPlayers}
                   </td>
                 ))}
@@ -84,10 +97,16 @@ const SuggestedMissions = ({
       </Row>
       <Row>
         <Col>
-          <FaCheck style={{ color: "green" }} />
+          <FaCheck
+            style={{ color: "green" }}
+            onClick={() => voteOnSuggestedMission(true)}
+          />
         </Col>
         <Col>
-          <FaTimes style={{ color: "red" }} />
+          <FaTimes
+            style={{ color: "red" }}
+            onClick={() => voteOnSuggestedMission(false)}
+          />
         </Col>
       </Row>
     </>

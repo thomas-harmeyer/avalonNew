@@ -96,6 +96,8 @@ const GameView = () => {
   const [loadedMission, setLoadedMission] = useState<Mission[]>();
   const [users, setUsers] = useState<User[]>(testUsers);
   const [passedMissions, setPassedMissions] = useState<Mission[]>([]);
+  const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
+  const [suggestingMission, setSuggestingMission] = useState<number>(0);
 
   useEffect(() => {
     const updateLobby = (game: Game) => {
@@ -125,6 +127,10 @@ const GameView = () => {
     //run fetch data
     fetchData();
   }, [missions.length]);
+
+  function voteOnSuggestedMission(vote: boolean) {
+    console.log(vote);
+  }
 
   return (
     <>
@@ -168,6 +174,10 @@ const GameView = () => {
         <SuggestedMissions
           suggestedMissions={loadedMission}
           users={users}
+          selectedUsers={selectedUsers}
+          setSelectedUsers={setSelectedUsers}
+          suggestingMission={suggestingMission}
+          voteOnSuggestedMission={voteOnSuggestedMission}
         ></SuggestedMissions>
       )}
     </>

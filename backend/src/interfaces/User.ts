@@ -18,7 +18,6 @@ export interface User {
 }
 
 export const UserSchema = new Schema<User>({
-  _id: String,
   username: { type: String, required: true },
   ope: String,
   role: String,

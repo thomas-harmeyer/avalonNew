@@ -6,8 +6,10 @@ import { Server, Socket } from "socket.io";
 import { handleStartGame } from "./game-controller";
 import {
   addUser,
+  deleteAllGames,
   findByOpe,
   Game,
+  GameModel,
   removeUser,
   saveSettings,
 } from "./interfaces/Game";
@@ -17,6 +19,7 @@ connect("mongodb://localhost:27017/avalon", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
+deleteAllGames();
 
 const app = express();
 app.use(cors());
@@ -28,7 +31,7 @@ app.use(
 );
 
 app.get("/settings", (req: any, res: any) => {
-  findByOpe(req.query.ope).then((game: Game | null) => {
+  findByOpe(req.query.ope).then((game) => {
     res.send(game);
   });
 });
@@ -36,7 +39,6 @@ app.get("/settings", (req: any, res: any) => {
 app.post("/settings", (req: any, res: any) => {
   findByOpe(req.body.game.ope).then((game) => {
     if (game) {
-      removeUser(game, game.users[0]);
       saveSettings(game, req.body.game).then((game: Game) => {
         emitUsers(game);
         res.send(game);
@@ -60,7 +62,7 @@ const options = {
 const io = new Server(httpServer, options);
 const lobby = io.of("/lobby");
 
-lobby.on("connection", (socket: Socket) => {
+lobby.on("connection", async (socket: Socket) => {
   const username: string = socket.handshake.auth.username;
   const ope: string = socket.handshake.auth.ope;
   const user: User = {
@@ -69,11 +71,14 @@ lobby.on("connection", (socket: Socket) => {
   };
 
   socket.join(ope);
-  findByOpe(ope).then((game) => {
-    if (game)
-      addUser(game, user).then((game) => {
-        if (game) emitUsers(game);
-      });
+  await findByOpe(ope).then(async (game) => {
+    if (!game) {
+      game = new GameModel(game);
+      await game.save();
+    }
+    addUser(game, user).then((game) => {
+      if (game) emitUsers(game);
+    });
   });
   socket.on("connected", () => {
     findByOpe(ope).then((game) => {

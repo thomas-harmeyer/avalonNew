@@ -4,7 +4,7 @@ import Mission, {
   MissionMetadata,
   MissionSchema,
 } from "./Mission";
-import { User } from "./User";
+import { User, UserModel, UserSchema } from "./User";
 
 interface GameMetadata {
   totalPlayers: number;
@@ -13,7 +13,7 @@ interface GameMetadata {
 }
 
 const GameMetadataSchema = new Schema<GameMetadata>({
-  totalPlayers: { type: Number, required: true, default: 5 },
+  totalPlayers: { type: Number, default: 5 },
   passedMissions: Number,
   failedMissions: Number,
 });
@@ -27,17 +27,16 @@ export interface Game {
 }
 
 const GameSchema = new Schema<Game>({
+  _id: { type: String, required: true },
   ope: { type: String, required: true },
-  users: { type: [String], required: true, default: [] },
-  data: { type: GameMetadataSchema, required: true },
+  users: { type: [UserSchema], default: [] },
+  data: { type: GameMetadataSchema, default: () => ({}) },
   roles: {
     type: [String],
-    required: true,
     default: ["Merlin", "Percival", "Assassin", "Morgana"],
   },
   missions: {
     type: [[MissionSchema]],
-    required: true,
     default: [],
   },
 });
@@ -60,16 +59,20 @@ export async function defaultMissions(game: Game & Document<any, any, Game>) {
   return await game.save();
 }
 
-GameSchema.post("save", function (next) {
+GameSchema.post("save", function () {
   console.log(this);
-  next();
 });
 
 export const GameModel = model<Game>("Game", GameSchema);
 
 export async function findByOpe(ope: string) {
-  return await GameModel.findOne({ ope: ope }).then((game) => {
-    return game;
+  return await GameModel.findById(ope).then(async (game) => {
+    if (game) {
+      return game;
+    } else {
+      const gameDoc = new GameModel({ _id: ope, ope: ope });
+      return await gameDoc.save();
+    }
   });
 }
 
@@ -79,7 +82,8 @@ export async function addUser(
 ) {
   if (!containsUser(game, user)) {
     console.log(user);
-    game.users.push(user);
+    const userDoc = new UserModel(user);
+    game.users.push(userDoc);
     return await game.save();
   } else {
     return game;
@@ -111,7 +115,7 @@ export async function saveSettings(
 export function containsUser(game: Game, user: User) {
   return (
     game.users.filter((userToFilter: User) => {
-      return userToFilter._id === user._id;
+      return userToFilter.username === user.username;
     }).length !== 0
   );
 }
@@ -119,9 +123,13 @@ export function containsUser(game: Game, user: User) {
 export function getIndexOfUser(game: Game, user: User) {
   return game.users.indexOf(
     game.users.filter((userToFilter: User) => {
-      return user._id === userToFilter._id;
+      return user.username === userToFilter.username;
     })[0]
   );
+}
+
+export function deleteAllGames() {
+  GameModel.deleteMany({}).exec();
 }
 
 export default Game;

@@ -31,7 +31,7 @@ interface VoteData {
   userVotes?: UserVote[];
 }
 export const VoteDataSchema = new Schema<VoteData>({
-  isVoting: { type: Boolean, required: true },
+  isVoting: { type: Boolean },
   passed: Boolean,
   userVotes: [UserVoteSchema],
 });
@@ -46,9 +46,9 @@ export interface Mission {
 export const MissionSchema = new Schema<Mission>({
   suggester: UserSchema,
   suggestedUsers: [UserSchema],
-  voteData: [VoteDataSchema],
+  voteData: VoteDataSchema,
   passed: Boolean,
-  data: { type: [MissionMetadataSchema], required: true },
+  data: { type: MissionMetadataSchema, required: true },
 });
 
 //number of players on each mission for each size of game

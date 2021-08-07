@@ -5,11 +5,12 @@ type LobbyNameListProps = {
   users: User[];
 };
 
-const LobbyNameList: React.FC<LobbyNameListProps> = (props) => {
+const LobbyNameList = (props: LobbyNameListProps) => {
+  console.log(props);
   return (
     <>
       {props.users.map((user, i) => (
-        <Col xs={6} key={user._id}>
+        <Col xs={6} key={"user:" + i}>
           <Card bg="secondary" text="light" className="mt-1">
             <Card.Body>{user.username}</Card.Body>
           </Card>
