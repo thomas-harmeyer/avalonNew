@@ -28,34 +28,14 @@ lobby.on("connection", async (socket: Socket) => {
   const game = findGame(ope);
   game.users.push(user);
 
-  // await findByOpe(ope).then(async (game) => {
-  //   if (!game) {
-  //     game = new GameModel(game);
-  //     await game.save();
-  //   }
-  //   addUser(game, user).then((game) => {
-  //     if (game) emitUsers(game);
-  //   });
-  // });
-
   socket.on("connected", () => {
     console.log(game);
     emitUsers(game);
-    // findByOpe(ope).then((game) => {
-    //   if (game) emitUsers(game);
-    // });
   });
   socket.on("disconnect", function (reason) {
     game.users = game.users.filter((userFilter: User) => {
       return userFilter._id !== user._id;
     });
-    // console.log("user disconnected");
-    // findByOpe(ope).then((game) => {
-    //   if (game)
-    //     removeUser(game, user).then((game) => {
-    //       if (game) emitUsers(game);
-    //     });
-    // });
   });
 
   socket.on("start-game", () => {
@@ -70,13 +50,3 @@ export function emitUsers(game: Game) {
 httpServer.listen(4000, function () {
   console.log("listening on *:4000");
 });
-
-// connectToDb();
-// async function connectToDb() {
-//   await connect("mongodb://localhost:27017/avalon", {
-//     useNewUrlParser: true,
-//     useUnifiedTopology: true,
-//   });
-//   const db = connection;
-//   db.on("error", console.error.bind(console, "connection error:"));
-// }
