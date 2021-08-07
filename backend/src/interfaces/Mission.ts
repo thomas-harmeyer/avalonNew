@@ -1,55 +1,55 @@
-import { getModelForClass, prop } from "@typegoose/typegoose";
-import User from "./User";
-
-export class Mission {
-  @prop()
-  public suggester?: User;
-
-  @prop()
-  public suggestedUsers?: User[];
-
-  @prop()
-  public voteData?: VoteDataClass;
-
-  @prop()
-  public passed?: boolean;
-
-  @prop({ required: true })
-  public data!: MissionMetaDataClass;
-}
+import { Document, Schema, model, connect, SchemaType } from "mongoose";
+import User, { UserSchema } from "./User";
 
 //meta data class that contains num of players and fails
-class MissionMetaDataClass {
-  @prop({ required: true })
-  numOfPlayers!: number;
-
-  @prop({ required: true })
-  numOfFails!: number;
+export interface MissionMetadata {
+  numOfPlayers: number;
+  numOfFails: number;
 }
-
-//data class that contains vote info
-class VoteDataClass {
-  //if there is currently a vote for this mission
-  @prop({ required: true })
-  isVoting!: boolean;
-
-  //if the vote passed, only exists after vote has happened
-  @prop()
-  passed?: boolean;
-
-  //array of the users votes
-  @prop()
-  userVotes?: UserVoteClass[];
-}
+export const MissionMetadataSchema = new Schema<MissionMetadata>({
+  numOfPlayers: { type: Number, required: true },
+  numOfFails: { type: Number, required: true },
+});
 
 //container class for vote data class
-class UserVoteClass {
-  @prop({ required: true })
-  user!: User;
-
-  @prop({ required: true })
-  passed!: boolean;
+interface UserVote {
+  user: User;
+  passed: boolean;
 }
+export const UserVoteSchema = new Schema<UserVote>({
+  user: { type: UserSchema, required: true },
+  passed: { type: Boolean, required: true },
+});
+
+//data class that contains vote info
+interface VoteData {
+  //if there is currently a vote for this mission
+  isVoting: boolean;
+  //if the vote passed, only exists after vote has happened
+  passed?: boolean;
+  //array of the users votes
+  userVotes?: UserVote[];
+}
+export const VoteDataSchema = new Schema<VoteData>({
+  isVoting: { type: Boolean, required: true },
+  passed: Boolean,
+  userVotes: [UserVoteSchema],
+});
+
+export interface Mission {
+  suggester?: User;
+  suggestedUsers?: User[];
+  voteData?: VoteData;
+  passed?: boolean;
+  data: MissionMetadata;
+}
+export const MissionSchema = new Schema<Mission>({
+  suggester: UserSchema,
+  suggestedUsers: [UserSchema],
+  voteData: [VoteDataSchema],
+  passed: Boolean,
+  data: { type: [MissionMetadataSchema], required: true },
+});
 
 //number of players on each mission for each size of game
 export const missionCounts = {
@@ -79,7 +79,5 @@ export const missionCounts = {
     numOfFails: [1, 1, 1, 2, 1],
   },
 };
-
-export const MissionModel = getModelForClass(Mission);
 
 export default Mission;
