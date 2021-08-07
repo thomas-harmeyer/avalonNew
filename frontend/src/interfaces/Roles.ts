@@ -33,6 +33,7 @@ export function getKnownRoles(user: User | undefined, users: User[]) {
   if (
     role === Roles.Merlin ||
     role === Roles.BadKnight ||
+    role === Roles.Assassin ||
     role === Roles.Morgana ||
     role === Roles.Minion
   ) {
