@@ -1,44 +1,39 @@
 import { useEffect, useState } from "react";
 import { Button, Card, Col, Row } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
-import Game from "../../interfaces/Game";
 import { getKnownRoles } from "../../interfaces/Roles";
 import User from "../../interfaces/User";
-import { getUsername, socket, tryConnect } from "../context/socket";
+import GameContext from "../context/GameContext";
+import { getUsername, tryConnect } from "../context/socket";
+import { useContext } from "react";
 
 const Role = () => {
-  const [user, setUser] = useState<User>();
+  const game = useContext(GameContext);
+
   const [knownUsers, setKnownUsers] = useState<User[]>();
 
   useEffect(() => {
     tryConnect();
 
-    function updateLobby(game: Game) {
+    function updateLobby() {
       game.users.forEach((user: User) => {
         if (user.username === getUsername()) {
-          setUser(user);
           setKnownUsers(getKnownRoles(user, game.users));
         }
       });
     }
-
-    function fetchData() {
-      socket.emit("connected");
-      socket.on("update-lobby", updateLobby);
-    }
-
-    fetchData();
-    return function disconnect() {
-      socket.off("update-lobby");
-    };
-  }, []);
+    updateLobby();
+  }, [game.users]);
   return (
     <div>
-      <h4>Your Role is {user && user.role ? user.role : ""}</h4>
+      <h4>
+        Your Role is{" "}
+        {game.users.find((user: User) => user.username === getUsername())?.role}
+      </h4>
       <Row>
         {knownUsers &&
           knownUsers.map((user, i) => (
-            <Col xs={6} key={user._id}>
+            <Col xs={6} key={"user:" + user._id}>
               <Card bg="secondary" text="light" className="mt-1">
                 <Card.Body>
                   {user.username}

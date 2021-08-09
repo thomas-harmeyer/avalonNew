@@ -4,14 +4,15 @@ const link = "http://localhost:4000/lobby";
 export function getUsername() {
   return localStorage.getItem("username");
 }
-export function getOpe() {
-  return localStorage.getItem("ope");
+export function getOpe(): string {
+  const ope = localStorage.getItem("ope");
+  if (ope !== null) return ope;
+  else return "ope";
 }
+
 export const socket = io(link, { autoConnect: false });
+
 export function tryConnect() {
-  console.group();
-  console.log("try connect");
-  console.groupEnd();
   if (!socket.connected) {
     if (getUsername() && getOpe()) {
       socket.auth = {
@@ -19,6 +20,9 @@ export function tryConnect() {
         id: `${Date.now()}`,
         ope: getOpe(),
       };
+      socket.on("connected", () => {
+        console.log("connected");
+      });
       socket.connect();
     }
   }

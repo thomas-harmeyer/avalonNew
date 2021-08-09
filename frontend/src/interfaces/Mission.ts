@@ -3,7 +3,7 @@ import User from "./User";
 interface Mission {
   suggester?: User;
   suggestedUsers?: User[];
-  voteData?: VoteData;
+  voteData: VoteData;
   passed?: boolean;
   data: MissionMetaData;
 }
@@ -14,9 +14,8 @@ interface MissionMetaData {
 }
 
 interface VoteData {
-  isVoting: boolean;
   passed?: boolean;
-  userVotes?: UserVote[];
+  userVotes: UserVote[];
 }
 
 export interface UserVote {

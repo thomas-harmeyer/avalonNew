@@ -1,21 +1,156 @@
+import { useContext } from "react";
 import { Col, Row, Table } from "react-bootstrap";
 import { FaCheck, FaQuestion, FaTimes } from "react-icons/fa";
 import Mission, { UserVote } from "../../interfaces/Mission";
 import User from "../../interfaces/User";
+import GameContext from "../context/GameContext";
 
 type SuggestedMissionProps = {
-  suggestedMissions: Mission[];
-  users: User[];
+  loadedMission: Mission[];
   setSelectedUsers: React.Dispatch<React.SetStateAction<User[]>>;
   selectedUsers: User[];
-  suggestingMission: number;
-  voteOnSuggestedMission: (vote: boolean) => void;
+  handleSuggest: () => void;
+  handleVote: (vote: boolean) => void;
 };
 
 const SuggestedMissions = ({
-  suggestedMissions,
-  users,
+  loadedMission,
+  setSelectedUsers,
+  selectedUsers,
+  handleSuggest,
+  handleVote,
 }: SuggestedMissionProps) => {
+  const game = useContext(GameContext);
+  //test data
+  // const testUsers: User[] = [
+  //   {
+  //     _id: "1",
+  //     username: "thomas",
+  //     ope: "hell",
+  //     role: Roles.GoodKnight,
+  //     data: { winRate: 0.5 },
+  //     isGood: true,
+  //   },
+  //   {
+  //     _id: "2",
+  //     username: "louis",
+  //     ope: "hell",
+  //     role: Roles.Merlin,
+  //     data: { winRate: 0.5 },
+  //     isGood: true,
+  //   },
+  //   {
+  //     _id: "3",
+  //     username: "keegan",
+  //     ope: "hell",
+  //     role: Roles.Merlin,
+  //     data: { winRate: 0.5 },
+  //     isGood: true,
+  //   },
+  //   {
+  //     _id: "4",
+  //     username: "may",
+  //     ope: "hell",
+  //     role: Roles.Merlin,
+  //     data: { winRate: 0.5 },
+  //     isGood: true,
+  //   },
+  //   {
+  //     _id: "5",
+  //     username: "chuck",
+  //     ope: "hell",
+  //     role: Roles.Merlin,
+  //     data: { winRate: 0.5 },
+  //     isGood: true,
+  //   },
+  //   {
+  //     _id: "6",
+  //     username: "loki",
+  //     ope: "hell",
+  //     role: Roles.GoodKnight,
+  //     data: { winRate: 0.5 },
+  //     isGood: true,
+  //   },
+  //   {
+  //     _id: "7",
+  //     username: "k",
+  //     ope: "hell",
+  //     role: Roles.Merlin,
+  //     data: { winRate: 0.5 },
+  //     isGood: true,
+  //   },
+  //   {
+  //     _id: "8",
+  //     username: "nicole",
+  //     ope: "hell",
+  //     role: Roles.Merlin,
+  //     data: { winRate: 0.5 },
+  //     isGood: true,
+  //   },
+  // ];
+  // users = testUsers;
+  // loadedMission = [
+  //   {
+  //     data: {
+  //       numOfPlayers: 2,
+  //       numOfFails: 2,
+  //     },
+  //     suggestedUsers: [],
+  //   },
+  //   {
+  //     data: {
+  //       numOfPlayers: 3,
+  //       numOfFails: 1,
+  //     },
+  //     suggestedUsers: [],
+  //   },
+  //   {
+  //     data: {
+  //       numOfPlayers: 2,
+  //       numOfFails: 1,
+  //     },
+  //     suggestedUsers: [],
+  //   },
+  //   {
+  //     data: {
+  //       numOfPlayers: 3,
+  //       numOfFails: 1,
+  //     },
+  //     suggestedUsers: [],
+  //   },
+  //   {
+  //     data: {
+  //       numOfPlayers: 3,
+  //       numOfFails: 1,
+  //     },
+  //     suggestedUsers: [],
+  //   },
+  // ];
+  //end test data
+
+  function handleSelectUser(user: User, numOfPlayers: number) {
+    if (!game.missionData.isVoting)
+      if (
+        selectedUsers.filter((userFilter: User) => {
+          return userFilter._id === user._id;
+        }).length > 0
+      ) {
+        setSelectedUsers((selectedUsers) =>
+          selectedUsers.filter((userFilter: User) => {
+            return userFilter._id !== user._id;
+          })
+        );
+      } else {
+        if (selectedUsers.length < numOfPlayers) {
+          setSelectedUsers((selectedUsers) => [...selectedUsers, user]);
+        } else {
+          let selectedUsersTemp = selectedUsers;
+          selectedUsersTemp.pop();
+          setSelectedUsers([...selectedUsersTemp, user]);
+        }
+      }
+  }
+
   return (
     <>
       <Row>
@@ -24,19 +159,19 @@ const SuggestedMissions = ({
             <thead>
               <tr>
                 <td>User</td>
-                {suggestedMissions.map((mission: Mission, j: number) => (
+                {loadedMission.map((mission: Mission, j: number) => (
                   <td key={"suggestedMissions:" + j}>{j + 1}</td>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {users.map((user: User, i: number) => (
+              {game.users.map((user: User, i: number) => (
                 <tr
                   key={"user" + i}
                   // className={suggestedMission.passed ? "bg-success" : "bg-danger"}
                 >
                   <td>{user.username}</td>
-                  {suggestedMissions.map((mission: Mission, j: number) => (
+                  {loadedMission.map((mission: Mission, j: number) => (
                     <td
                       key={"suggestedMissions2:" + j}
                       className={
@@ -50,7 +185,7 @@ const SuggestedMissions = ({
                           ? "bg-warning"
                           : selectedUsers.filter((missionUser: User) => {
                               return missionUser._id === user._id;
-                            }).length && j === suggestingMission
+                            }).length && j === game.missionData.onMission
                           ? "bg-warning"
                           : ""
                       }
@@ -60,10 +195,16 @@ const SuggestedMissions = ({
                     >
                       {!(
                         mission &&
-                      mission.voteData &&
-                        mission.voteData.isVoting
+                        mission.voteData &&
+                        game.missionData.isVoting === false
                       ) ? (
-                        <>{j === suggestingMission ? <FaQuestion /> : <></>}</>
+                        <>
+                          {j === game.missionData.onMission ? (
+                            <FaQuestion />
+                          ) : (
+                            <></>
+                          )}
+                        </>
                       ) : (
                         <>
                           {mission.voteData?.userVotes?.filter(
@@ -85,9 +226,10 @@ const SuggestedMissions = ({
             <tfoot>
               <tr>
                 <td># of players</td>
-                {suggestedMissions.map((mission: Mission, j: number) => (
+                {loadedMission.map((mission: Mission, j: number) => (
                   <td key={"suggestedMissionsNumOfPlayers:" + j}>
                     {mission.data.numOfPlayers}
+                    {mission.data.numOfFails > 1 && "!"}
                   </td>
                 ))}
               </tr>
@@ -95,20 +237,30 @@ const SuggestedMissions = ({
           </Table>
         </Col>
       </Row>
-      <Row>
-        <Col>
-          <FaCheck
-            style={{ color: "green" }}
-            onClick={() => voteOnSuggestedMission(true)}
-          />
-        </Col>
-        <Col>
-          <FaTimes
-            style={{ color: "red" }}
-            onClick={() => voteOnSuggestedMission(false)}
-          />
-        </Col>
-      </Row>
+      {game.missionData.isVoting && (
+        <Row>
+          <Col>
+            <FaCheck
+              style={{ color: "green" }}
+              onClick={
+                game.missionData.isVoting
+                  ? () => handleVote(true)
+                  : () => handleSuggest()
+              }
+            />
+          </Col>
+          <Col>
+            <FaTimes
+              style={{ color: "red" }}
+              onClick={
+                game.missionData.isVoting
+                  ? () => handleVote(false)
+                  : () => handleSuggest()
+              }
+            />
+          </Col>
+        </Row>
+      )}
     </>
   );
 };

@@ -1,14 +1,16 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Card, Col, Row, Table } from "react-bootstrap";
 import { FaCheck, FaQuestion, FaTimes } from "react-icons/fa";
-import Game from "../../interfaces/Game";
 import Mission from "../../interfaces/Mission";
 import Roles from "../../interfaces/Roles";
 import User from "../../interfaces/User";
+import GameContext from "../context/GameContext";
 import socket from "../context/socket";
 import SuggestedMissions from "./SuggestedMissions";
 
 const GameView = () => {
+  const game = useContext(GameContext);
+  console.log(game.missions[0][0]);
   const testUsers: User[] = [
     {
       _id: "1",
@@ -92,44 +94,39 @@ const GameView = () => {
     },
   ];
 
-  const [missions, setMissions] = useState<Mission[][]>([]);
-  const [loadedMission, setLoadedMission] = useState<Mission[]>();
-  const [users, setUsers] = useState<User[]>(testUsers);
   const [passedMissions, setPassedMissions] = useState<Mission[]>([]);
+  const [loadedMission, setLoadedMission] = useState<Mission[]>();
   const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
-  const [suggestingMission, setSuggestingMission] = useState<number>(0);
 
   useEffect(() => {
-    const updateLobby = (game: Game) => {
-      //log game
-      console.log(game);
-
-      //set users
-      setUsers(game.users);
-
-      //set missions
-      setMissions(game.missions);
-
+    const setData = async () => {
       //set passed missions
       const passedMissionsTemp: Mission[] = [];
       game.missions.forEach((missionArray, i) => {
         passedMissionsTemp.push(missionArray[missionArray.length - 1]);
       });
       setPassedMissions(passedMissionsTemp);
-    };
-
-    //ask for lobby data
-    const fetchData = async () => {
-      socket.emit("connected");
-      socket.on("update-lobby", updateLobby);
+      setLoadedMission(passedMissionsTemp);
+      const mission =
+        game.missions[game.missionData.onMission][
+          game.missions[game.missionData.onMission].length - 1
+        ];
+      if (game.missionData.isVoting === true && mission.suggestedUsers) {
+        setSelectedUsers(mission.suggestedUsers);
+      }
     };
 
     //run fetch data
-    fetchData();
-  }, [missions.length]);
+    setData();
+  }, [game.missionData.onMission, game.missions, game.users]);
 
-  function voteOnSuggestedMission(vote: boolean) {
-    console.log(vote);
+  function handleVote(vote: boolean) {
+    console.log("user-vote");
+    socket.emit("user-vote", vote);
+  }
+  function handleSuggest() {
+    console.log("user-suggest");
+    socket.emit("user-suggest", selectedUsers);
   }
 
   return (
@@ -146,38 +143,36 @@ const GameView = () => {
           <Table>
             <tbody>
               <tr>
-                {missions &&
-                  missions.map((mission, i) => (
-                    <td key={"mission: " + i}>
-                      <Card
-                        bg="light"
-                        onClick={() => setLoadedMission(missions[i])}
-                      >
-                        <Card.Body>
-                          {mission[mission.length - 1].passed === undefined ? (
-                            <FaQuestion />
-                          ) : mission[mission.length - 1].passed ? (
-                            <FaCheck style={{ color: "green" }} />
-                          ) : (
-                            <FaTimes style={{ color: "red" }} />
-                          )}
-                        </Card.Body>
-                      </Card>
-                    </td>
-                  ))}
+                {game.missions.map((mission, i) => (
+                  <td key={"mission: " + i}>
+                    <Card
+                      bg="light"
+                      onClick={() => setLoadedMission(game.missions[i])}
+                    >
+                      <Card.Body>
+                        {mission[mission.length - 1].passed === undefined ? (
+                          <FaQuestion />
+                        ) : mission[mission.length - 1].passed ? (
+                          <FaCheck style={{ color: "green" }} />
+                        ) : (
+                          <FaTimes style={{ color: "red" }} />
+                        )}
+                      </Card.Body>
+                    </Card>
+                  </td>
+                ))}
               </tr>
             </tbody>
           </Table>
         </Col>
       </Row>
-      {loadedMission && users && (
+      {loadedMission && (
         <SuggestedMissions
-          suggestedMissions={loadedMission}
-          users={users}
+          loadedMission={loadedMission}
           selectedUsers={selectedUsers}
           setSelectedUsers={setSelectedUsers}
-          suggestingMission={suggestingMission}
-          voteOnSuggestedMission={voteOnSuggestedMission}
+          handleSuggest={handleSuggest}
+          handleVote={handleVote}
         ></SuggestedMissions>
       )}
     </>

@@ -6,7 +6,6 @@ type LobbyNameListProps = {
 };
 
 const LobbyNameList = (props: LobbyNameListProps) => {
-  console.log(props);
   return (
     <>
       {props.users.map((user, i) => (

@@ -6,14 +6,22 @@ interface Game {
   missions: Mission[][];
   users: User[];
   ope: string;
-  data: GameMetadata;
+  missionData: GameMissionMetadata;
   roles: Roles[];
+  totalPlayers: number;
 }
 
-export interface GameMetadata {
-  totalPlayers: number;
-  passedMissions?: number;
-  failedMissions?: number;
+export enum MissionState {
+  Suggesting = "suggesting",
+  Voting = "voting",
+  onMission = "onMission",
+}
+
+export interface GameMissionMetadata {
+  state: MissionState;
+  onMission: number;
+  passedMissions: number;
+  failedMissions: number;
 }
 
 export default Game;

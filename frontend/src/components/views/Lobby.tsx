@@ -1,42 +1,32 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { Alert, Button, Col, Row, Spinner } from "react-bootstrap";
 import { Redirect } from "react-router-dom";
-import Game from "../../interfaces/Game";
+import GameContext from "../context/GameContext";
 import socket, { tryConnect } from "../context/socket";
 import LobbyNameList from "../LobbyNameList";
 
 const Lobby = () => {
+  const game = useContext(GameContext);
   const settingsHaveBeenUpdated = sessionStorage.getItem(
     "settingsHaveBeenUpdated"
   );
-  const [lobby, setLobby] = useState<Game>();
   const [redirectToSettings, setRedirectToSettings] = useState<boolean>(false);
   const [redirectToGame, setRedirectToGame] = useState<boolean>(false);
   const [alert, setAlert] = useState<string>();
   useEffect(() => {
     tryConnect();
 
-    function updateLobby(game: Game) {
-      console.log(game);
-      if (game.users.length === 1 && !settingsHaveBeenUpdated) {
+    function checkLobby() {
+      if (game?.users.length === 1 && !settingsHaveBeenUpdated) {
+        sessionStorage.setItem("settingsHaveBeenUpdated", "true");
         setRedirectToSettings(true);
       } else {
         sessionStorage.setItem("settingsHaveBeenUpdated", "true");
-        setLobby(game);
       }
     }
-    const fetchData = async () => {
-      console.log("connected");
-      socket.emit("connected");
-      socket.on("update-lobby", updateLobby);
-    };
+    checkLobby();
+  }, [game?.users.length, settingsHaveBeenUpdated]);
 
-    fetchData();
-    return function disconnect() {
-      console.log("socket off");
-      socket.off("update-lobby");
-    };
-  }, [settingsHaveBeenUpdated]);
   if (!localStorage.getItem("username")) {
     return <Redirect to="login" />;
   }
@@ -48,14 +38,14 @@ const Lobby = () => {
   }
 
   function startGame() {
-    if (!lobby?.data) {
+    if (!game?.totalPlayers) {
       setAlert("You need to update the settings first");
       return;
     }
     console.group("number of users");
     console.groupEnd();
 
-    if (lobby && lobby.users.length === lobby.data.totalPlayers) {
+    if (game && game.users.length === game.totalPlayers) {
       socket.emit("start-game");
       setRedirectToGame(true);
     } else {
@@ -75,21 +65,21 @@ const Lobby = () => {
         )}
         <Row>
           <Col>
-            <h1>OPE: {lobby && lobby.ope ? lobby.ope : 0}</h1>
+            <h1>OPE: {game && game.ope ? game.ope : 0}</h1>
           </Col>
         </Row>
         <br />
         <Row>
           <Col>
             <h1>
-              {lobby && lobby.users ? lobby.users.length : 0}/
-              {lobby && lobby.data ? lobby.data.totalPlayers : "?"} Players
+              {game.users ? game.users.length : 0}/
+              {game.totalPlayers ? game.totalPlayers : "?"} Players
             </h1>
           </Col>
         </Row>
         <Row>
-          {lobby && lobby.users && lobby.users.length > 0 && (
-            <LobbyNameList users={lobby.users}></LobbyNameList>
+          {game && game.users && game.users.length > 0 && (
+            <LobbyNameList users={game.users}></LobbyNameList>
           )}
         </Row>
         <Row className="mt-3">
@@ -104,7 +94,7 @@ const Lobby = () => {
   };
   return (
     <>
-      {lobby ? (
+      {game ? (
         loadedLobby()
       ) : (
         <span>

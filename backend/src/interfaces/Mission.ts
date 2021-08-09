@@ -14,18 +14,16 @@ interface UserVote {
 
 //data class that contains vote info
 interface VoteData {
-  //if there is currently a vote for this mission
-  isVoting: boolean;
   //if the vote passed, only exists after vote has happened
   passed?: boolean;
   //array of the users votes
-  userVotes?: UserVote[];
+  userVotes: UserVote[];
 }
 
 export interface Mission {
   suggester?: User;
   suggestedUsers?: User[];
-  voteData?: VoteData;
+  voteData: VoteData;
   passed?: boolean;
   data: MissionMetadata;
 }

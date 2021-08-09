@@ -1,4 +1,4 @@
-import { defaultMissions, Game } from "./interfaces/Game";
+import Game, { defaultMissions } from "./interfaces/Game";
 
 export function handleStartGame(game: Game) {
   defaultMissions(game);
@@ -6,7 +6,7 @@ export function handleStartGame(game: Game) {
   let n = game.users.length;
   let numOfGood = 0;
   let numOfBad = 0;
-  const totalPlayers = game.data.totalPlayers;
+  const totalPlayers = game.totalPlayers;
   const totalGood = Math.floor(totalPlayers / 2 + 1);
   const totalBad = Math.floor(
     totalPlayers / 2 - (totalPlayers % 2 === 0 ? 1 : 0)

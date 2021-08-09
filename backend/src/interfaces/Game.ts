@@ -3,18 +3,26 @@ import { User } from "./User";
 
 export const games: Game[] = [];
 
-interface GameMetadata {
+interface Game {
+  missions: Mission[][];
+  users: User[];
+  ope: string;
+  missionData: GameMissionMetadata;
+  roles: string[];
   totalPlayers: number;
-  passedMissions?: number;
-  failedMissions?: number;
 }
 
-export interface Game {
-  ope: string;
-  users: User[];
-  data: GameMetadata;
-  roles: string[];
-  missions: Mission[][];
+export enum MissionState {
+  Suggesting = "suggesting",
+  Voting = "voting",
+  onMission = "onMission",
+}
+
+export interface GameMissionMetadata {
+  state: MissionState;
+  onMission: number;
+  passedMissions: number;
+  failedMissions: number;
 }
 
 export async function defaultMissions(game: Game) {
@@ -38,9 +46,15 @@ export function createGame(ope: string) {
   const game: Game = {
     ope: ope,
     users: [],
-    data: { totalPlayers: 5 },
     roles: ["Merlin", "Percival", "Assassin", "Morgana"],
     missions: [],
+    totalPlayers: 5,
+    missionData: {
+      state: MissionState.Suggesting,
+      onMission: 0,
+      passedMissions: 0,
+      failedMissions: 0,
+    },
   };
   games.push(game);
   return game;
