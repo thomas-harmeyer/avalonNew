@@ -3,9 +3,9 @@ import { Button, Col, Row, Table } from "react-bootstrap";
 import {
   FaCheck,
   FaQuestion,
-  FaTimes,
-  FaThumbsUp,
   FaThumbsDown,
+  FaThumbsUp,
+  FaTimes,
 } from "react-icons/fa";
 import { MissionState } from "../../interfaces/Game";
 import Mission, { UserVote } from "../../interfaces/Mission";
