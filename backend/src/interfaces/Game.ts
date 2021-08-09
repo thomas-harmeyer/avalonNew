@@ -26,6 +26,12 @@ export interface GameMissionMetadata {
 }
 
 export async function defaultMissions(game: Game) {
+  game.missionData = {
+    state: MissionState.Suggesting,
+    onMission: 0,
+    passedMissions: 0,
+    failedMissions: 0,
+  } as GameMissionMetadata;
   const missions: Mission[][] = [];
   const missionCount: { numOfPlayers: number[]; numOfFails: number[] } =
     missionCounts[game.users.length as keyof typeof missionCounts];

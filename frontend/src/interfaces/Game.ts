@@ -11,12 +11,6 @@ interface Game {
   totalPlayers: number;
 }
 
-export enum MissionState {
-  Suggesting = "suggesting",
-  Voting = "voting",
-  onMission = "onMission",
-}
-
 export interface GameMissionMetadata {
   state: MissionState;
   onMission: number;
@@ -24,4 +18,9 @@ export interface GameMissionMetadata {
   failedMissions: number;
 }
 
+export enum MissionState {
+  Suggesting = "suggesting",
+  Voting = "voting",
+  onMission = "onMission",
+}
 export default Game;

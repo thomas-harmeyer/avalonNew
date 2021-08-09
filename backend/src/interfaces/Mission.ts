@@ -22,7 +22,7 @@ interface VoteData {
 
 export interface Mission {
   suggester?: User;
-  suggestedUsers?: User[];
+  suggestedUsers: User[];
   voteData: VoteData;
   passed?: boolean;
   data: MissionMetadata;

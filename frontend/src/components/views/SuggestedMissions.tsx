@@ -1,6 +1,13 @@
 import { useContext } from "react";
-import { Col, Row, Table } from "react-bootstrap";
-import { FaCheck, FaQuestion, FaTimes } from "react-icons/fa";
+import { Button, Col, Row, Table } from "react-bootstrap";
+import {
+  FaCheck,
+  FaQuestion,
+  FaTimes,
+  FaThumbsUp,
+  FaThumbsDown,
+} from "react-icons/fa";
+import { MissionState } from "../../interfaces/Game";
 import Mission, { UserVote } from "../../interfaces/Mission";
 import User from "../../interfaces/User";
 import GameContext from "../context/GameContext";
@@ -21,115 +28,8 @@ const SuggestedMissions = ({
   handleVote,
 }: SuggestedMissionProps) => {
   const game = useContext(GameContext);
-  //test data
-  // const testUsers: User[] = [
-  //   {
-  //     _id: "1",
-  //     username: "thomas",
-  //     ope: "hell",
-  //     role: Roles.GoodKnight,
-  //     data: { winRate: 0.5 },
-  //     isGood: true,
-  //   },
-  //   {
-  //     _id: "2",
-  //     username: "louis",
-  //     ope: "hell",
-  //     role: Roles.Merlin,
-  //     data: { winRate: 0.5 },
-  //     isGood: true,
-  //   },
-  //   {
-  //     _id: "3",
-  //     username: "keegan",
-  //     ope: "hell",
-  //     role: Roles.Merlin,
-  //     data: { winRate: 0.5 },
-  //     isGood: true,
-  //   },
-  //   {
-  //     _id: "4",
-  //     username: "may",
-  //     ope: "hell",
-  //     role: Roles.Merlin,
-  //     data: { winRate: 0.5 },
-  //     isGood: true,
-  //   },
-  //   {
-  //     _id: "5",
-  //     username: "chuck",
-  //     ope: "hell",
-  //     role: Roles.Merlin,
-  //     data: { winRate: 0.5 },
-  //     isGood: true,
-  //   },
-  //   {
-  //     _id: "6",
-  //     username: "loki",
-  //     ope: "hell",
-  //     role: Roles.GoodKnight,
-  //     data: { winRate: 0.5 },
-  //     isGood: true,
-  //   },
-  //   {
-  //     _id: "7",
-  //     username: "k",
-  //     ope: "hell",
-  //     role: Roles.Merlin,
-  //     data: { winRate: 0.5 },
-  //     isGood: true,
-  //   },
-  //   {
-  //     _id: "8",
-  //     username: "nicole",
-  //     ope: "hell",
-  //     role: Roles.Merlin,
-  //     data: { winRate: 0.5 },
-  //     isGood: true,
-  //   },
-  // ];
-  // users = testUsers;
-  // loadedMission = [
-  //   {
-  //     data: {
-  //       numOfPlayers: 2,
-  //       numOfFails: 2,
-  //     },
-  //     suggestedUsers: [],
-  //   },
-  //   {
-  //     data: {
-  //       numOfPlayers: 3,
-  //       numOfFails: 1,
-  //     },
-  //     suggestedUsers: [],
-  //   },
-  //   {
-  //     data: {
-  //       numOfPlayers: 2,
-  //       numOfFails: 1,
-  //     },
-  //     suggestedUsers: [],
-  //   },
-  //   {
-  //     data: {
-  //       numOfPlayers: 3,
-  //       numOfFails: 1,
-  //     },
-  //     suggestedUsers: [],
-  //   },
-  //   {
-  //     data: {
-  //       numOfPlayers: 3,
-  //       numOfFails: 1,
-  //     },
-  //     suggestedUsers: [],
-  //   },
-  // ];
-  //end test data
-
   function handleSelectUser(user: User, numOfPlayers: number) {
-    if (!game.missionData.isVoting)
+    if (game.missionData.state === MissionState.Suggesting)
       if (
         selectedUsers.filter((userFilter: User) => {
           return userFilter._id === user._id;
@@ -177,15 +77,16 @@ const SuggestedMissions = ({
                       className={
                         mission.suggester && mission.suggester._id === user._id
                           ? "bg-info"
-                          : mission.suggestedUsers?.filter(
+                          : mission.suggestedUsers?.length &&
+                            mission.suggestedUsers?.find(
                               (missionUser: User) => {
                                 return missionUser._id === user._id;
                               }
-                            ).length
+                            )
                           ? "bg-warning"
-                          : selectedUsers.filter((missionUser: User) => {
+                          : selectedUsers?.find((missionUser: User) => {
                               return missionUser._id === user._id;
-                            }).length && j === game.missionData.onMission
+                            }) && j === game.missionData.onMission
                           ? "bg-warning"
                           : ""
                       }
@@ -196,7 +97,7 @@ const SuggestedMissions = ({
                       {!(
                         mission &&
                         mission.voteData &&
-                        game.missionData.isVoting === false
+                        game.missionData.state === MissionState.Voting
                       ) ? (
                         <>
                           {j === game.missionData.onMission ? (
@@ -207,11 +108,11 @@ const SuggestedMissions = ({
                         </>
                       ) : (
                         <>
-                          {mission.voteData?.userVotes?.filter(
+                          {mission.voteData?.userVotes?.find(
                             (userVote: UserVote) => {
                               return userVote.user._id === user._id;
                             }
-                          )[0].passed ? (
+                          )?.passed ? (
                             <FaCheck style={{ color: "green" }} />
                           ) : (
                             <FaTimes style={{ color: "red" }} />
@@ -237,26 +138,33 @@ const SuggestedMissions = ({
           </Table>
         </Col>
       </Row>
-      {game.missionData.isVoting && (
+      {game.missionData.state === MissionState.Suggesting && (
         <Row>
           <Col>
             <FaCheck
               style={{ color: "green" }}
-              onClick={
-                game.missionData.isVoting
-                  ? () => handleVote(true)
-                  : () => handleSuggest()
-              }
+              onClick={() => handleSuggest()}
             />
           </Col>
           <Col>
-            <FaTimes
+            <Button variant="primary" onClick={() => handleSuggest()}>
+              Suggest
+            </Button>
+          </Col>
+        </Row>
+      )}
+      {game.missionData.state === MissionState.Voting && (
+        <Row>
+          <Col>
+            <FaThumbsUp
+              style={{ color: "green" }}
+              onClick={() => handleVote(true)}
+            />
+          </Col>
+          <Col>
+            <FaThumbsDown
               style={{ color: "red" }}
-              onClick={
-                game.missionData.isVoting
-                  ? () => handleVote(false)
-                  : () => handleSuggest()
-              }
+              onClick={() => handleVote(false)}
             />
           </Col>
         </Row>

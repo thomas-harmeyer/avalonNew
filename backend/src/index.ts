@@ -2,7 +2,7 @@ import { createServer } from "http";
 import { Server, Socket } from "socket.io";
 import { app } from "./app-controller";
 import { handleStartGame } from "./game-controller";
-import Game, { findGame } from "./interfaces/Game";
+import Game, { findGame, MissionState } from "./interfaces/Game";
 import { User } from "./interfaces/User";
 
 const httpServer = createServer(app);
@@ -48,7 +48,7 @@ lobby.on("connection", async (socket: Socket) => {
   });
 
   socket.on("user-suggest", (selectedUsers: User[]) => {
-    game.missionData.isVoting = true;
+    game.missionData.state = MissionState.Voting;
     const mission =
       game.missions[game.missionData.onMission][
         game.missions[game.missionData.onMission].length - 1
@@ -65,6 +65,7 @@ lobby.on("connection", async (socket: Socket) => {
       ];
     mission.voteData.userVotes.push({ user: user, passed: vote });
     console.log(mission);
+    //count passed votes
     if (mission.voteData.userVotes.length === game.totalPlayers) {
       let passedVotes = 0;
       mission.voteData.userVotes.forEach((userVote, index) => {
@@ -76,10 +77,10 @@ lobby.on("connection", async (socket: Socket) => {
       let notPassedVotes = game.totalPlayers - passedVotes;
       const voteResult = passedVotes > notPassedVotes;
       mission.passed = voteResult;
-      game.missionData.isVoting = false;
       if (voteResult) {
-        game.missionData.isOnMission = true;
+        game.missionData.state = MissionState.onMission;
       } else {
+        game.missionData.state = MissionState.Suggesting;
       }
     }
     emitGame(game);

@@ -1,8 +1,8 @@
 import { useContext, useEffect, useState } from "react";
 import { Card, Col, Row, Table } from "react-bootstrap";
 import { FaCheck, FaQuestion, FaTimes } from "react-icons/fa";
+import { MissionState } from "../../interfaces/Game";
 import Mission from "../../interfaces/Mission";
-import Roles from "../../interfaces/Roles";
 import User from "../../interfaces/User";
 import GameContext from "../context/GameContext";
 import socket from "../context/socket";
@@ -10,89 +10,12 @@ import SuggestedMissions from "./SuggestedMissions";
 
 const GameView = () => {
   const game = useContext(GameContext);
-  console.log(game.missions[0][0]);
-  const testUsers: User[] = [
-    {
-      _id: "1",
-      username: "thomas",
-      ope: "hell",
-      role: Roles.GoodKnight,
-      data: { winRate: 0.5 },
-      isGood: true,
-    },
-    {
-      _id: "2",
-      username: "louis",
-      ope: "hell",
-      role: Roles.Merlin,
-      data: { winRate: 0.5 },
-      isGood: true,
-    },
-    {
-      _id: "3",
-      username: "keegan",
-      ope: "hell",
-      role: Roles.Merlin,
-      data: { winRate: 0.5 },
-      isGood: true,
-    },
-    {
-      _id: "4",
-      username: "may",
-      ope: "hell",
-      role: Roles.Merlin,
-      data: { winRate: 0.5 },
-      isGood: true,
-    },
-    {
-      _id: "5",
-      username: "chuck",
-      ope: "hell",
-      role: Roles.Merlin,
-      data: { winRate: 0.5 },
-      isGood: true,
-    },
-    {
-      _id: "6",
-      username: "loki",
-      ope: "hell",
-      role: Roles.GoodKnight,
-      data: { winRate: 0.5 },
-      isGood: true,
-    },
-    {
-      _id: "7",
-      username: "k",
-      ope: "hell",
-      role: Roles.Merlin,
-      data: { winRate: 0.5 },
-      isGood: true,
-    },
-    {
-      _id: "8",
-      username: "nicole",
-      ope: "hell",
-      role: Roles.Merlin,
-      data: { winRate: 0.5 },
-      isGood: true,
-    },
-    {
-      _id: "9",
-      username: "emma",
-      ope: "hell",
-      role: Roles.Merlin,
-      data: { winRate: 0.5 },
-      isGood: true,
-    },
-    {
-      _id: "10",
-      username: "pat",
-      ope: "hell",
-      role: Roles.Merlin,
-      data: { winRate: 0.5 },
-      isGood: true,
-    },
-  ];
+  console.log(
+    game && game.missions.length && game.missions[0].length
+      ? game.missions[0][0]
+      : ""
+  );
+  console.log(game.missionData);
 
   const [passedMissions, setPassedMissions] = useState<Mission[]>([]);
   const [loadedMission, setLoadedMission] = useState<Mission[]>();
@@ -101,24 +24,30 @@ const GameView = () => {
   useEffect(() => {
     const setData = async () => {
       //set passed missions
-      const passedMissionsTemp: Mission[] = [];
-      game.missions.forEach((missionArray, i) => {
-        passedMissionsTemp.push(missionArray[missionArray.length - 1]);
-      });
-      setPassedMissions(passedMissionsTemp);
-      setLoadedMission(passedMissionsTemp);
-      const mission =
-        game.missions[game.missionData.onMission][
-          game.missions[game.missionData.onMission].length - 1
-        ];
-      if (game.missionData.isVoting === true && mission.suggestedUsers) {
-        setSelectedUsers(mission.suggestedUsers);
+      if (game.missions.length) {
+        const passedMissionsTemp: Mission[] = [];
+        game.missions.forEach((missionArray, i) => {
+          passedMissionsTemp.push(missionArray[missionArray.length - 1]);
+        });
+        setPassedMissions(passedMissionsTemp);
+        setLoadedMission(passedMissionsTemp);
+        const mission =
+          game.missions[game.missionData.onMission][
+            game.missions[game.missionData.onMission].length - 1
+          ];
+        if (game.missionData.state === MissionState.Voting) {
+          setSelectedUsers(mission.suggestedUsers);
+        }
       }
     };
-
     //run fetch data
     setData();
-  }, [game.missionData.onMission, game.missions, game.users]);
+  }, [
+    game.missionData.onMission,
+    game.missionData.state,
+    game.missions,
+    game.users,
+  ]);
 
   function handleVote(vote: boolean) {
     console.log("user-vote");
