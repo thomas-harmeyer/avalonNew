@@ -4,6 +4,7 @@ const link = "http://localhost:4000/lobby";
 export function getUsername() {
   return localStorage.getItem("username");
 }
+
 export function getOpe(): string {
   const ope = localStorage.getItem("ope");
   if (ope !== null) return ope;

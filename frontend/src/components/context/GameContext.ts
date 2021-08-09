@@ -15,6 +15,7 @@ export const GameContext = createContext({
     passedMissions: 0,
     failedMissions: 0,
   },
+  hasStarted: false,
 } as Game);
 
 export default GameContext;

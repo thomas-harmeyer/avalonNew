@@ -10,12 +10,7 @@ interface Game {
   missionData: GameMissionMetadata;
   roles: string[];
   totalPlayers: number;
-}
-
-export enum MissionState {
-  Suggesting = "suggesting",
-  Voting = "voting",
-  onMission = "onMission",
+  hasStarted: boolean;
 }
 
 export interface GameMissionMetadata {
@@ -23,6 +18,12 @@ export interface GameMissionMetadata {
   onMission: number;
   passedMissions: number;
   failedMissions: number;
+}
+
+export enum MissionState {
+  Suggesting = "suggesting",
+  Voting = "voting",
+  onMission = "onMission",
 }
 
 export async function defaultMissions(game: Game) {
@@ -42,7 +43,10 @@ export async function defaultMissions(game: Game) {
           numOfPlayers: missionCount.numOfPlayers[i],
           numOfFails: missionCount.numOfFails[i],
         } as MissionMetadata,
-      },
+        userResults: [],
+        suggestedUsers: [],
+        voteData: { userVotes: [] },
+      } as Mission,
     ] as Mission[]);
   }
   game.missions = missions;
@@ -61,6 +65,7 @@ export function createGame(ope: string) {
       passedMissions: 0,
       failedMissions: 0,
     },
+    hasStarted: false,
   };
   games.push(game);
   return game;

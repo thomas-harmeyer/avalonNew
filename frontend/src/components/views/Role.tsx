@@ -4,7 +4,7 @@ import { LinkContainer } from "react-router-bootstrap";
 import { getKnownRoles } from "../../interfaces/Roles";
 import User from "../../interfaces/User";
 import GameContext from "../context/GameContext";
-import { getUsername, tryConnect } from "../context/socket";
+import socket, { tryConnect } from "../context/socket";
 import { useContext } from "react";
 
 const Role = () => {
@@ -17,7 +17,7 @@ const Role = () => {
 
     function updateLobby() {
       game.users.forEach((user: User) => {
-        if (user.username === getUsername()) {
+        if (user._id === socket.id) {
           setKnownUsers(getKnownRoles(user, game.users));
         }
       });
@@ -28,7 +28,7 @@ const Role = () => {
     <div>
       <h4>
         Your Role is{" "}
-        {game.users.find((user: User) => user.username === getUsername())?.role}
+        {game.users.find((user: User) => user._id === socket.id)?.role}
       </h4>
       <Row>
         {knownUsers &&

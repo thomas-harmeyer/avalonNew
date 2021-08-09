@@ -12,7 +12,7 @@ const Lobby = () => {
   );
   const [redirectToSettings, setRedirectToSettings] = useState<boolean>(false);
   const [redirectToGame, setRedirectToGame] = useState<boolean>(false);
-  const [alert, setAlert] = useState<string>();
+  const [error, setError] = useState<string>();
   useEffect(() => {
     tryConnect();
 
@@ -39,7 +39,7 @@ const Lobby = () => {
 
   function startGame() {
     if (!game?.totalPlayers) {
-      setAlert("You need to update the settings first");
+      setError("You need to update the settings first");
       return;
     }
     console.group("number of users");
@@ -49,17 +49,21 @@ const Lobby = () => {
       socket.emit("start-game");
       setRedirectToGame(true);
     } else {
-      setAlert("You need to have the correct number of players");
+      setError("You need to have the correct number of players");
     }
   }
 
   const loadedLobby = () => {
     return (
       <>
-        {alert && (
-          <Row>
+        {error && (
+          <Row
+            onClick={() => {
+              setError(undefined);
+            }}
+          >
             <Col>
-              <Alert variant={"danger"}>{alert}</Alert>
+              <Alert variant={"danger"}>{error}</Alert>
             </Col>
           </Row>
         )}

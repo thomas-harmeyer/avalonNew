@@ -20,9 +20,15 @@ interface VoteData {
   userVotes: UserVote[];
 }
 
+interface ResultData {
+  user: User;
+  passed?: boolean;
+}
+
 export interface Mission {
   suggester?: User;
   suggestedUsers: User[];
+  userResults: ResultData[];
   voteData: VoteData;
   passed?: boolean;
   data: MissionMetadata;

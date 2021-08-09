@@ -9,6 +9,7 @@ interface Game {
   missionData: GameMissionMetadata;
   roles: Roles[];
   totalPlayers: number;
+  hasStarted: boolean;
 }
 
 export interface GameMissionMetadata {

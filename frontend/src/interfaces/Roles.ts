@@ -29,7 +29,7 @@ export function getKnownRoles(user: User | undefined, users: User[]) {
   }
   const knownRoles: User[] = [];
   const role = user.role;
-  const username = user.username;
+  const _id = user._id;
   if (
     role === Roles.Merlin ||
     role === Roles.BadKnight ||
@@ -38,14 +38,14 @@ export function getKnownRoles(user: User | undefined, users: User[]) {
     role === Roles.Minion
   ) {
     users.forEach((user: User) => {
-      if (username !== user.username && isBad(user)) {
+      if (_id !== user._id && isBad(user)) {
         knownRoles.push(user);
       }
     });
   } else if (role === Roles.Percival) {
     users.forEach((user: User) => {
       if (
-        username !== user.username &&
+        _id !== user._id &&
         (user.role === Roles.Merlin || user.role === Roles.Morgana)
       )
         user.role = Roles.MerlinOrMorgana;

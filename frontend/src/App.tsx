@@ -30,6 +30,7 @@ function App() {
       passedMissions: 0,
       failedMissions: 0,
     },
+    hasStarted: false,
   } as Game);
   socket.on("update-game", (game: Game) => {
     setGame(game);

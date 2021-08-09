@@ -1,7 +1,8 @@
 import Game, { defaultMissions } from "./interfaces/Game";
 
 export function handleStartGame(game: Game) {
-  if (game.missions.length === 0) {
+  if (!game.hasStarted) {
+    game.hasStarted = true;
     defaultMissions(game);
     const users = game.users;
     let n = game.users.length;

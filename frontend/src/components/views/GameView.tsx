@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { Card, Col, Row, Table } from "react-bootstrap";
+import { Alert, Card, CloseButton, Col, Row, Table } from "react-bootstrap";
 import { FaCheck, FaQuestion, FaTimes } from "react-icons/fa";
 import { MissionState } from "../../interfaces/Game";
 import Mission from "../../interfaces/Mission";
@@ -10,16 +10,14 @@ import SuggestedMissions from "./SuggestedMissions";
 
 const GameView = () => {
   const game = useContext(GameContext);
-  console.log(
-    game && game.missions.length && game.missions[0].length
-      ? game.missions[0][0]
-      : ""
-  );
-  console.log(game.missionData);
 
   const [passedMissions, setPassedMissions] = useState<Mission[]>([]);
-  const [loadedMission, setLoadedMission] = useState<Mission[]>();
+  const [loadedMissions, setLoadedMission] = useState<Mission[]>();
   const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
+  const [lastOnMission, setLastOnMission] = useState<[number, number]>([0, 0]);
+  const [error, setError] = useState<string>();
+
+  console.log(loadedMissions);
 
   useEffect(() => {
     const setData = async () => {
@@ -38,6 +36,16 @@ const GameView = () => {
         if (game.missionData.state === MissionState.Voting) {
           setSelectedUsers(mission.suggestedUsers);
         }
+        if (
+          lastOnMission[0] !== game.missionData.onMission ||
+          lastOnMission[1] !== game.missions[game.missionData.onMission].length
+        ) {
+          setSelectedUsers([]);
+          setLastOnMission([
+            game.missionData.onMission,
+            game.missions[game.missionData.onMission].length,
+          ] as [number, number]);
+        }
       }
     };
     //run fetch data
@@ -46,7 +54,7 @@ const GameView = () => {
     game.missionData.onMission,
     game.missionData.state,
     game.missions,
-    game.users,
+    lastOnMission,
   ]);
 
   function handleVote(vote: boolean) {
@@ -55,11 +63,39 @@ const GameView = () => {
   }
   function handleSuggest() {
     console.log("user-suggest");
-    socket.emit("user-suggest", selectedUsers);
+    const mission =
+      game.missions[game.missionData.onMission][
+        game.missions[game.missionData.onMission].length - 1
+      ];
+    if (selectedUsers.length === mission.data.numOfPlayers) {
+      socket.emit("user-suggest", selectedUsers);
+      setSelectedUsers([]);
+    } else {
+      setError("You must select the correct number of users");
+    }
+  }
+  function handleSuccess(success: boolean) {
+    console.log("user-passed");
+    socket.emit("user-passed", success);
   }
 
   return (
     <>
+      {error && (
+        <Row
+          onClick={() => {
+            setError(undefined);
+          }}
+        >
+          <Col>
+            <Alert variant={"danger"}>
+              {error}
+              <hr />
+              <CloseButton />
+            </Alert>
+          </Col>
+        </Row>
+      )}
       <Row>
         <Col>
           <Card bg="light" onClick={() => setLoadedMission(passedMissions)}>
@@ -95,13 +131,14 @@ const GameView = () => {
           </Table>
         </Col>
       </Row>
-      {loadedMission && (
+      {loadedMissions && (
         <SuggestedMissions
-          loadedMission={loadedMission}
+          loadedMissions={loadedMissions}
           selectedUsers={selectedUsers}
           setSelectedUsers={setSelectedUsers}
           handleSuggest={handleSuggest}
           handleVote={handleVote}
+          handlePass={handleSuccess}
         ></SuggestedMissions>
       )}
     </>
