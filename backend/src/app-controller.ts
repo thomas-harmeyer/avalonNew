@@ -1,8 +1,7 @@
-import { Roles } from "./../../frontend/src/interfaces/Roles";
 import cors from "cors";
 import express from "express";
+import { emitGame } from "./index";
 import Game, { findGame } from "./interfaces/Game";
-import { emitUsers } from "./index";
 
 export const app = express();
 app.use(cors());
@@ -19,12 +18,12 @@ app.get("/settings", (req: any, res: any) => {
 });
 
 app.post("/settings", (req: any, res: any) => {
-  const gameSettings = req.body.game;
+  const gameSettings: Game = req.body.game;
   const game = findGame(req.body.game.ope);
   game.roles = gameSettings.roles;
-  game.data.totalPlayers = gameSettings.data.totalPlayers;
+  game.totalPlayers = gameSettings.totalPlayers;
 
-  emitUsers(game);
+  emitGame(game);
   res.send(game);
 });
 
