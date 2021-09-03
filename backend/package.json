@@ -2,9 +2,9 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "server",
-  "main": "index.ts",
+  "main": "src/index.ts",
   "scripts": {
-    "start": "tsc && node build/bin/www.js && nodemon app.js",
+    "start": "nodemon src/index.ts",
     "build": "tsc --project ./",
     "tsc": "tsc"
   },
