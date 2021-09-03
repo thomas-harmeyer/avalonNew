@@ -42,13 +42,20 @@ lobby.on("connection", async (socket: Socket) => {
   if (!game.hasStarted) {
     game.users.push(user);
   }
+
   emitGame(game);
 
   socket.on("disconnect", function (reason) {
-    if (!game.hasStarted)
+    if (!game.hasStarted) {
       game.users = game.users.filter((userFilter: User) => {
         return userFilter._id !== user._id;
       });
+    } else {
+      if (game.usersToRemove === undefined) {
+        game.usersToRemove = [];
+      }
+      game.usersToRemove?.push(user);
+    }
     emitGame(game);
   });
 
