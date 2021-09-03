@@ -1,7 +1,7 @@
 import io from "socket.io-client";
 
-// const link = "https://reactalon-v9t9j.ondigitalocean.app/lobby";
-const link = "localhost:4000/lobby";
+const link = "https://reactalon-v9t9j.ondigitalocean.app/lobby";
+// const link = "localhost:4000/lobby";
 export function getUsername() {
   return localStorage.getItem("username");
 }
