@@ -1,6 +1,6 @@
 import io from "socket.io-client";
 
-const link = "tharmeyer.dev:4000/lobby";
+const link = "https://reactalon-v9t9j.ondigitalocean.app/lobby";
 export function getUsername() {
   return localStorage.getItem("username");
 }
