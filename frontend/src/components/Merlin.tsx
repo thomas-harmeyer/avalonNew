@@ -5,7 +5,7 @@ import { Redirect } from "react-router-dom";
 import Roles from "../interfaces/Roles";
 import User from "../interfaces/User";
 import GameContext from "./context/GameContext";
-import socket from "./context/socket";
+import socket, { getUsername } from "./context/socket";
 import Links from "./Links";
 
 const Welcome = () => {
@@ -20,7 +20,7 @@ const Welcome = () => {
 
   const isAssassin =
     game.users.find((user, i) => {
-      return user._id === socket.id;
+      return user._id === getUsername();
     })?.role === Roles.Assassin;
 
   let goodUsers = game.users.filter((user, i) => {

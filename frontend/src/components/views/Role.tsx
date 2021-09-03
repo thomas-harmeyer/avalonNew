@@ -1,11 +1,10 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Button, Card, Col, Row } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
 import { getKnownRoles } from "../../interfaces/Roles";
 import User from "../../interfaces/User";
 import GameContext from "../context/GameContext";
-import socket, { tryConnect } from "../context/socket";
-import { useContext } from "react";
+import { getUsername, tryConnect } from "../context/socket";
 import Links from "../Links";
 
 const Role = () => {
@@ -18,7 +17,7 @@ const Role = () => {
 
     function updateLobby() {
       game.users.forEach((user: User) => {
-        if (user._id === socket.id) {
+        if (user._id === getUsername()) {
           setKnownUsers(getKnownRoles(user, game.users));
         }
       });
@@ -30,7 +29,7 @@ const Role = () => {
     <div>
       <h4>
         Your Role is{" "}
-        {game.users.find((user: User) => user._id === socket.id)?.role}
+        {game.users.find((user: User) => user._id === getUsername())?.role}
       </h4>
       <Row>
         {knownUsers &&

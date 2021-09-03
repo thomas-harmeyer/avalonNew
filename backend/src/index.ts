@@ -30,12 +30,12 @@ lobby.on("connection", async (socket: Socket) => {
     game.hasStarted && tempUser
       ? tempUser
       : ({
-          _id: socket.id,
+          _id: username,
           username: username,
           ope: ope,
         } as User);
 
-  user._id = socket.id;
+  user._id = username;
 
   socket.join(ope);
 

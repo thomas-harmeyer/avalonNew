@@ -2,13 +2,13 @@ import { useContext } from "react";
 import { Button, Col, Row } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
 import GameContext from "../context/GameContext";
-import socket from "../context/socket";
+import { getUsername } from "../context/socket";
 import Links from "../Links";
 const ResultView = () => {
   const game = useContext(GameContext);
 
   const isGood = game.users.find((user, i) => {
-    return user._id === socket.id;
+    return user._id === getUsername();
   })?.isGood;
   const result = game.result && isGood;
   return (

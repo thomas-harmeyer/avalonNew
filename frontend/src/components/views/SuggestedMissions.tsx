@@ -12,7 +12,7 @@ import { MissionState } from "../../interfaces/Game";
 import Mission, { UserVote } from "../../interfaces/Mission";
 import User from "../../interfaces/User";
 import GameContext from "../context/GameContext";
-import socket from "../context/socket";
+import { getUsername } from "../context/socket";
 import Links from "../Links";
 
 type SuggestedMissionProps = {
@@ -46,20 +46,20 @@ const SuggestedMissions = ({
   const hasVoted = game.missions[game.missionData.onMission][
     game.missions[game.missionData.onMission].length - 1
   ].voteData?.userVotes.find((userVote, index) => {
-    return userVote.user._id === socket.id;
+    return userVote.user._id === getUsername();
   })
     ? true
     : false;
   const hasPassed = game.missions[game.missionData.onMission][
     game.missions[game.missionData.onMission].length - 1
   ].userResults.find((userResult, index) => {
-    return userResult.user._id === socket.id;
+    return userResult.user._id === getUsername();
   })
     ? true
     : false;
   const areSuggested = loadedMissions[onMission].suggestedUsers.find(
     (user, index) => {
-      return user._id === socket.id;
+      return user._id === getUsername();
     }
   )
     ? true
