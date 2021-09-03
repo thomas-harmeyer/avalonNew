@@ -6,6 +6,7 @@ import User from "../../interfaces/User";
 import GameContext from "../context/GameContext";
 import socket, { tryConnect } from "../context/socket";
 import { useContext } from "react";
+import { Redirect } from "react-router-dom";
 
 const Role = () => {
   const game = useContext(GameContext);
@@ -24,6 +25,7 @@ const Role = () => {
     }
     updateLobby();
   }, [game.users]);
+
   return (
     <div>
       <h4>

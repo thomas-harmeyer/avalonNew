@@ -1,4 +1,4 @@
-import Game, { defaultMissions } from "./interfaces/Game";
+import Game, { defaultMissions, MissionState } from "./interfaces/Game";
 
 export function handleStartGame(game: Game) {
   if (!game.hasStarted) {
@@ -17,32 +17,38 @@ export function handleStartGame(game: Game) {
 
     if (game.roles.includes("Merlin")) {
       users[index].role = "Merlin";
+      users[index].isGood = true;
       index++;
       numOfGood++;
     }
     if (game.roles.includes("Percival")) {
       users[index].role = "Percival";
+      users[index].isGood = true;
       index++;
       numOfGood++;
     }
     if (game.roles.includes("Assassin")) {
       users[index].role = "Assassin";
+      users[index].isGood = false;
       index++;
       numOfBad++;
     }
     if (game.roles.includes("Morgana")) {
       users[index].role = "Morgana";
+      users[index].isGood = false;
       index++;
       numOfBad++;
     }
 
     while (numOfGood < totalGood) {
       users[index].role = "Good Knight";
+      users[index].isGood = true;
       numOfGood++;
       index++;
     }
     while (numOfBad < totalBad) {
       users[index].role = "Bad Knight";
+      users[index].isGood = false;
       numOfBad++;
       index++;
     }
@@ -57,6 +63,23 @@ export function handleStartGame(game: Game) {
       game.users[randomNumber1].role = game.users[randomNumber2].role;
       game.users[randomNumber2].role = tempRole;
     }
+  }
+}
+
+export function handleRestartGame(game: Game) {
+  game.hasStarted = false;
+  game.missions = [];
+  game.missionData = {
+    state: MissionState.Suggesting,
+    onMission: 0,
+    passedMissions: 0,
+    failedMissions: 0,
+  };
+  game.result = undefined;
+  for (let i = 0; i < game.users.length; i++) {
+    game.users[i].role = undefined;
+    game.users[i].isGood = undefined;
+    game.users[i].data = undefined;
   }
 }
 

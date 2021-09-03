@@ -47,9 +47,10 @@ export function getKnownRoles(user: User | undefined, users: User[]) {
       if (
         _id !== user._id &&
         (user.role === Roles.Merlin || user.role === Roles.Morgana)
-      )
+      ) {
         user.role = Roles.MerlinOrMorgana;
-      knownRoles.push(user);
+        knownRoles.push(user);
+      }
     });
   }
   return knownRoles;

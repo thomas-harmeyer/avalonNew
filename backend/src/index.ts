@@ -1,7 +1,7 @@
 import { createServer } from "http";
 import { Server, Socket } from "socket.io";
 import { app } from "./app-controller";
-import { handleStartGame } from "./game-controller";
+import { handleRestartGame, handleStartGame } from "./game-controller";
 import Game, { findGame, MissionState } from "./interfaces/Game";
 import Mission, { missionCounts, MissionMetadata } from "./interfaces/Mission";
 import { User } from "./interfaces/User";
@@ -25,6 +25,7 @@ lobby.on("connection", async (socket: Socket) => {
   const tempUser = game.users.find((user, index) => {
     return user.username === username;
   });
+
   let user: User =
     game.hasStarted && tempUser
       ? tempUser
@@ -60,6 +61,10 @@ lobby.on("connection", async (socket: Socket) => {
     handleStartGame(game);
     emitGame(game);
   });
+  socket.on("restart-game", () => {
+    handleRestartGame(game);
+    emitGame(game);
+  });
 
   socket.on("user-suggest", (selectedUsers: User[]) => {
     if (game.missionData.state === MissionState.Suggesting) {
@@ -88,7 +93,6 @@ lobby.on("connection", async (socket: Socket) => {
       )
         return;
       mission.voteData.userVotes.push({ user: user, passed: vote });
-      console.log(mission);
       //count passed votes
       if (mission.voteData.userVotes.length === game.totalPlayers) {
         let passedVotes = 0;
@@ -96,7 +100,6 @@ lobby.on("connection", async (socket: Socket) => {
           if (userVote.passed) {
             passedVotes++;
           }
-          ``;
         });
 
         let notPassedVotes = game.totalPlayers - passedVotes;
@@ -105,20 +108,24 @@ lobby.on("connection", async (socket: Socket) => {
         if (voteResult) {
           game.missionData.state = MissionState.onMission;
         } else {
-          game.missionData.state = MissionState.Suggesting;
-          game.missions[game.missionData.onMission].push({
-            data: {
-              numOfPlayers:
-                missionCounts[game.users.length as keyof typeof missionCounts]
-                  .numOfPlayers[game.missionData.onMission],
-              numOfFails:
-                missionCounts[game.users.length as keyof typeof missionCounts]
-                  .numOfFails[game.missionData.onMission],
-            } as MissionMetadata,
-            userResults: [],
-            suggestedUsers: [],
-            voteData: { userVotes: [] },
-          } as Mission);
+          if (game.missions[game.missionData.onMission].length < 5) {
+            game.missionData.state = MissionState.Suggesting;
+            game.missions[game.missionData.onMission].push({
+              data: {
+                numOfPlayers:
+                  missionCounts[game.users.length as keyof typeof missionCounts]
+                    .numOfPlayers[game.missionData.onMission],
+                numOfFails:
+                  missionCounts[game.users.length as keyof typeof missionCounts]
+                    .numOfFails[game.missionData.onMission],
+              } as MissionMetadata,
+              userResults: [],
+              suggestedUsers: [],
+              voteData: { userVotes: [] },
+            } as Mission);
+          } else {
+            missionPassed(mission, false, game);
+          }
         }
       }
       emitGame(game);
@@ -144,21 +151,39 @@ lobby.on("connection", async (socket: Socket) => {
           !userResult.passed && numOfFailed++;
         });
         const missionResult = !(numOfFailed >= mission.data.numOfFails);
-        mission.passed = missionResult;
-        if (missionResult) {
-          game.missionData.passedMissions++;
-        } else {
-          game.missionData.failedMissions++;
-        }
-
-        game.missionData.state = MissionState.Suggesting;
-        game.missionData.onMission++;
+        missionPassed(mission, missionResult, game);
         //todo end of game
       }
     }
     emitGame(game);
   });
+  socket.on("user-guess", (user: User) => {
+    game.result = user.role !== "merlin";
+    emitGame(game);
+  });
 });
+
+function missionPassed(mission: Mission, missionResult: boolean, game: Game) {
+  mission.passed = missionResult;
+  if (missionResult) {
+    game.missionData.passedMissions++;
+  } else {
+    game.missionData.failedMissions++;
+  }
+  game.missionData.state = MissionState.Suggesting;
+  game.missionData.onMission++;
+
+  if (
+    game.missionData.failedMissions > 2 ||
+    game.missionData.passedMissions > 2
+  ) {
+    game.missionData.result = game.missionData.passedMissions > 2;
+    if (game.missionData.result === false) {
+      game.result = false;
+    }
+  }
+}
+
 export function emitGame(game: Game) {
   console.log("emit game");
   lobby.to(game.ope).emit("update-game", game);

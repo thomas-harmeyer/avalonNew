@@ -16,6 +16,8 @@ import GameContext from "./components/context/GameContext";
 import Game, { MissionState } from "./interfaces/Game";
 import socket from "./components/context/socket";
 import Roles from "./interfaces/Roles";
+import ResultView from "./components/views/ResultView";
+import Merlin from "./components/Merlin";
 
 function App() {
   const [game, setGame] = useState<Game>({
@@ -49,6 +51,8 @@ function App() {
           <Route exact path={Links.Lobby} component={Lobby}></Route>
           <Route exact path={Links.Role} component={Role}></Route>
           <Route exact path={Links.Game} component={GameView}></Route>
+          <Route exact path={Links.Merlin} component={Merlin}></Route>
+          <Route exact path={Links.Result} component={ResultView}></Route>
         </GameContext.Provider>
       </Container>
     </Router>

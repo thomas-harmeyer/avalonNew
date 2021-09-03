@@ -36,7 +36,9 @@ const Lobby = () => {
   if (redirectToGame) {
     return <Redirect to="/role" />;
   }
-
+  function restartGame() {
+    socket.emit("restart-game");
+  }
   function startGame() {
     if (!game?.totalPlayers) {
       setError("You need to update the settings first");
@@ -52,10 +54,22 @@ const Lobby = () => {
       setError("You need to have the correct number of players");
     }
   }
-
   const loadedLobby = () => {
     return (
       <>
+        {game.hasStarted ? (
+          <Row>
+            <Col>
+              The Game has started
+              <br />
+              <Button variant="danger" onClick={restartGame}>
+                Click here to restart game
+              </Button>
+            </Col>
+          </Row>
+        ) : (
+          ""
+        )}
         {error && (
           <Row
             onClick={() => {
@@ -96,6 +110,7 @@ const Lobby = () => {
       </>
     );
   };
+
   return (
     <>
       {game ? (

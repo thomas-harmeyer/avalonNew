@@ -7,5 +7,7 @@ enum Links {
   About = "/about",
   Login = "/login",
   Role = "/role",
+  Merlin = "/merlin",
+  Result = "/result",
 }
 export default Links;

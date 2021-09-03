@@ -10,6 +10,7 @@ interface Game {
   roles: Roles[];
   totalPlayers: number;
   hasStarted: boolean;
+  result?: boolean;
 }
 
 export interface GameMissionMetadata {
@@ -17,6 +18,7 @@ export interface GameMissionMetadata {
   onMission: number;
   passedMissions: number;
   failedMissions: number;
+  result?: boolean;
 }
 
 export enum MissionState {

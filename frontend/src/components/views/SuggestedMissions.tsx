@@ -7,6 +7,7 @@ import {
   FaThumbsUp,
   FaTimes,
 } from "react-icons/fa";
+import { Redirect } from "react-router-dom";
 import { MissionState } from "../../interfaces/Game";
 import Mission, { UserVote } from "../../interfaces/Mission";
 import User from "../../interfaces/User";
@@ -20,6 +21,8 @@ type SuggestedMissionProps = {
   handleSuggest: () => void;
   handleVote: (vote: boolean) => void;
   handlePass: (success: boolean) => void;
+  onMission: number;
+  canSuggest: boolean;
 };
 
 const SuggestedMissions = ({
@@ -29,32 +32,40 @@ const SuggestedMissions = ({
   handleSuggest,
   handleVote,
   handlePass,
+  onMission,
+  canSuggest,
 }: SuggestedMissionProps) => {
+  console.log("on mission " + onMission);
   const game = useContext(GameContext);
-  const hasVoted = loadedMissions[
-    game.missionData.onMission
+  console.log(game);
+  if (game.missions.length === 0) {
+    return <Redirect to="/lobby" />;
+  }
+
+  const hasVoted = game.missions[game.missionData.onMission][
+    game.missions[game.missionData.onMission].length - 1
   ].voteData?.userVotes.find((userVote, index) => {
     return userVote.user._id === socket.id;
   })
     ? true
     : false;
-  const hasPassed = loadedMissions[game.missionData.onMission].userResults.find(
-    (userResult, index) => {
-      return userResult.user._id === socket.id;
+  const hasPassed = game.missions[game.missionData.onMission][
+    game.missions[game.missionData.onMission].length - 1
+  ].userResults.find((userResult, index) => {
+    return userResult.user._id === socket.id;
+  })
+    ? true
+    : false;
+  const areSuggested = loadedMissions[onMission].suggestedUsers.find(
+    (user, index) => {
+      return user._id === socket.id;
     }
   )
     ? true
     : false;
-  const areSuggested = loadedMissions[
-    game.missionData.onMission
-  ].suggestedUsers.find((user, index) => {
-    return user._id === socket.id;
-  })
-    ? true
-    : false;
 
   function handleSelectUser(user: User, numOfPlayers: number) {
-    if (game.missionData.state === MissionState.Suggesting)
+    if (game.missionData.state === MissionState.Suggesting && canSuggest)
       if (
         selectedUsers.filter((userFilter: User) => {
           return userFilter._id === user._id;
@@ -94,8 +105,8 @@ const SuggestedMissions = ({
                 <tr key={"user" + i}>
                   <td
                     className={
-                      game.missions[game.missionData.onMission][
-                        game.missions[game.missionData.onMission].length - 1
+                      game.missions[onMission][
+                        game.missions[onMission].length - 1
                       ].suggester?._id === user._id
                         ? "bg-primary"
                         : ""
@@ -115,7 +126,7 @@ const SuggestedMissions = ({
                                 return missionUser._id === user._id;
                               }
                             )
-                            ? "bg-primary"
+                            ? "bg-warning"
                             : mission.passed
                             ? "bg-success"
                             : "bg-danger"
@@ -129,7 +140,7 @@ const SuggestedMissions = ({
                             : "bg-secondary"
                           : selectedUsers?.find((missionUser: User) => {
                               return missionUser._id === user._id;
-                            }) && j === game.missionData.onMission
+                            }) && j === onMission
                           ? "bg-info"
                           : ""
                       }
@@ -137,8 +148,8 @@ const SuggestedMissions = ({
                         handleSelectUser(user, mission.data.numOfPlayers)
                       }
                     >
-                      {!(mission && j <= game.missionData.onMission) ? (
-                        j === game.missionData.onMission && <FaQuestion />
+                      {!(mission && j <= onMission) ? (
+                        j === onMission && <FaQuestion />
                       ) : (
                         <>
                           {mission.voteData?.userVotes?.find(
