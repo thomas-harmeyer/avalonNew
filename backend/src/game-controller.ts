@@ -68,6 +68,12 @@ export function handleStartGame(game: Game) {
 
 export function handleRestartGame(game: Game) {
   game.hasStarted = false;
+  if (game.usersToRemove)
+    game.usersToRemove.forEach((userToRemove, i) => {
+      game.users = game.users.filter((user, i) => {
+        return user._id !== userToRemove._id;
+      });
+    });
   game.missions = [];
   game.missionData = {
     state: MissionState.Suggesting,

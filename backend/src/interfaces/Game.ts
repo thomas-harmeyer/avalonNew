@@ -6,6 +6,7 @@ export const games: Game[] = [];
 interface Game {
   missions: Mission[][];
   users: User[];
+  usersToRemove?: User[];
   ope: string;
   missionData: GameMissionMetadata;
   roles: string[];
