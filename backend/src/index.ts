@@ -193,6 +193,7 @@ function missionPassed(mission: Mission, missionResult: boolean, game: Game) {
 
 export function emitGame(game: Game) {
   console.log("emit game");
+  console.log(game);
   lobby.to(game.ope).emit("update-game", game);
 }
 
