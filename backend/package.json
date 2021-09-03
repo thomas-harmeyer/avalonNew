@@ -2,13 +2,13 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "server",
-  "main": "src/index.ts",
+  "main": "dist/index.js",
   "scripts": {
-    "start": "nodemon src/index.ts",
-    "build": "tsc --project ./",
+    "start": "tsc && node dist/index.js",
+    "build": "tsc",
     "tsc": "tsc"
   },
-  "author": "",
+  "author": "thomas harmeyer",
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.19.0",
