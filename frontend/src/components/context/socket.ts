@@ -1,6 +1,6 @@
 import io from "socket.io-client";
 
-const link = "http://localhost:4000/lobby";
+const link = "tharmeyer.dev:4000/lobby";
 export function getUsername() {
   return localStorage.getItem("username");
 }
@@ -11,10 +11,17 @@ export function getOpe(): string {
   else return "ope";
 }
 
-export const socket = io(link, { autoConnect: false });
+export const socket = io(link, {
+  autoConnect: false,
+  reconnection: true,
+  reconnectionDelay: 1000,
+  reconnectionDelayMax: 5000,
+  reconnectionAttempts: 5,
+});
 
 export function tryConnect() {
   if (!socket.connected) {
+    console.log("try connecting");
     if (getUsername() && getOpe()) {
       socket.auth = {
         username: getUsername(),

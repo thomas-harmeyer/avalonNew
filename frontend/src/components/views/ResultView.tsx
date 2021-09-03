@@ -1,7 +1,6 @@
 import { useContext } from "react";
 import { Button, Col, Row } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
-import { Redirect } from "react-router-dom";
 import GameContext from "../context/GameContext";
 import socket from "../context/socket";
 import Links from "../Links";
