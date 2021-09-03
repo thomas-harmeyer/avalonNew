@@ -61,7 +61,7 @@ export function createGame(ope: string) {
     users: [],
     roles: ["Merlin", "Percival", "Assassin", "Morgana"],
     missions: [],
-    totalPlayers: 5,
+    totalPlayers: 6,
     missionData: {
       state: MissionState.Suggesting,
       onMission: 0,
