@@ -3,6 +3,7 @@ import { Alert, Button, Col, Row, Spinner } from "react-bootstrap";
 import { Redirect } from "react-router-dom";
 import GameContext from "../context/GameContext";
 import socket, { tryConnect } from "../context/socket";
+import Links from "../Links";
 import LobbyNameList from "../LobbyNameList";
 
 const Lobby = () => {
@@ -28,13 +29,13 @@ const Lobby = () => {
   }, [game?.users.length, settingsHaveBeenUpdated]);
 
   if (!localStorage.getItem("username")) {
-    return <Redirect to="login" />;
+    return <Redirect to={Links.Login} />;
   }
   if (redirectToSettings) {
-    return <Redirect to="/settings" />;
+    return <Redirect to={Links.Settings} />;
   }
   if (redirectToGame) {
-    return <Redirect to="/role" />;
+    return <Redirect to={Links.Role} />;
   }
   function restartGame() {
     socket.emit("restart-game");

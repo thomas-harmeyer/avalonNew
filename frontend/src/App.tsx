@@ -40,7 +40,7 @@ function App() {
 
   return (
     <Router>
-      <Route path="/" component={Navbar}></Route>
+      <Route path="/avalonNew" component={Navbar}></Route>
       <Container fluid className="App justify-content-center text-center">
         <Route exact path={Links.Welcome} component={Welcome}></Route>
         <Route exact path={Links.Join} component={Join}></Route>

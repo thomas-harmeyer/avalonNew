@@ -14,7 +14,7 @@ const Navbar = () => {
         <Nav className="me-auto">
           <Row>
             <Col>
-              <LinkContainer to="/">
+              <LinkContainer to={Links.Welcome}>
                 <Nav.Link>Home</Nav.Link>
               </LinkContainer>
             </Col>

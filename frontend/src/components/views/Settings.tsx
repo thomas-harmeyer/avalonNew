@@ -4,6 +4,7 @@ import { LinkContainer } from "react-router-bootstrap";
 import Roles from "../../interfaces/Roles";
 import GameContext from "../context/GameContext";
 import socket from "../context/socket";
+import Links from "../Links";
 
 const Settings = () => {
   const game = useContext(GameContext);
@@ -65,7 +66,7 @@ const Settings = () => {
       </Row>
       <br />
       <Row>
-        <LinkContainer to="/lobby">
+        <LinkContainer to={Links.Lobby}>
           <Button variant="success">To Lobby</Button>
         </LinkContainer>
       </Row>

@@ -1,13 +1,13 @@
 enum Links {
-  Welcome = "/",
-  Join = "/join",
-  Lobby = "/lobby",
-  Settings = "/settings",
-  Game = "/game",
-  About = "/about",
-  Login = "/login",
-  Role = "/role",
-  Merlin = "/merlin",
-  Result = "/result",
+  Welcome = "/avalonNew",
+  Join = "/avalonNew/join",
+  Lobby = "/avalonNew/lobby",
+  Settings = "/avalonNew/settings",
+  Game = "/avalonNew/game",
+  About = "/avalonNew/about",
+  Login = "/avalonNew/login",
+  Role = "/avalonNew/role",
+  Merlin = "/avalonNew/merlin",
+  Result = "/avalonNew/result",
 }
 export default Links;

@@ -13,6 +13,7 @@ import Mission, { UserVote } from "../../interfaces/Mission";
 import User from "../../interfaces/User";
 import GameContext from "../context/GameContext";
 import socket from "../context/socket";
+import Links from "../Links";
 
 type SuggestedMissionProps = {
   loadedMissions: Mission[];
@@ -39,7 +40,7 @@ const SuggestedMissions = ({
   const game = useContext(GameContext);
   console.log(game);
   if (game.missions.length === 0) {
-    return <Redirect to="/lobby" />;
+    return <Redirect to={Links.Lobby} />;
   }
 
   const hasVoted = game.missions[game.missionData.onMission][
@@ -108,7 +109,7 @@ const SuggestedMissions = ({
                       game.missions[onMission][
                         game.missions[onMission].length - 1
                       ].suggester?._id === user._id
-                        ? "bg-primary"
+                        ? "bg-warning"
                         : ""
                     }
                   >

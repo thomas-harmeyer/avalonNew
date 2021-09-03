@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button, Col, FormControl, InputGroup, Row } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
+import Links from "../Links";
 
 const Join = () => {
   const [ope, setOpe] = useState(localStorage.getItem("ope"));
@@ -28,7 +29,7 @@ const Join = () => {
                 storeOpe(event.target.value);
               }}
             />
-            <LinkContainer to="/lobby">
+            <LinkContainer to={Links.Lobby}>
               <Button>Submit</Button>
             </LinkContainer>
           </InputGroup>

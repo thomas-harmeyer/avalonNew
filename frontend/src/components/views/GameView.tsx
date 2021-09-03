@@ -7,6 +7,7 @@ import Mission from "../../interfaces/Mission";
 import User from "../../interfaces/User";
 import GameContext from "../context/GameContext";
 import socket from "../context/socket";
+import Links from "../Links";
 import SuggestedMissions from "./SuggestedMissions";
 
 const GameView = () => {
@@ -90,11 +91,11 @@ const GameView = () => {
   }
 
   if (game.hasStarted === false) {
-    return <Redirect to="/lobby" />;
+    return <Redirect to={Links.Lobby} />;
   }
 
   if (game.missionData.result !== undefined) {
-    return <Redirect to="/merlin" />;
+    return <Redirect to={Links.Merlin} />;
   }
 
   return (

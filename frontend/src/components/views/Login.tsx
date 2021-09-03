@@ -4,6 +4,7 @@ import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 import { Redirect } from "react-router-dom";
 import { reconnect } from "../context/socket";
+import Links from "../Links";
 
 const Login = () => {
   const [username, setUsername] = useState(localStorage.getItem("username"));
@@ -20,7 +21,7 @@ const Login = () => {
     setOpe(ope);
   }
   if (redirect) {
-    return <Redirect to="/lobby" />;
+    return <Redirect to={Links.Lobby} />;
   }
   return (
     <>

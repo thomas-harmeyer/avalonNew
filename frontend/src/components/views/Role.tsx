@@ -6,6 +6,7 @@ import User from "../../interfaces/User";
 import GameContext from "../context/GameContext";
 import socket, { tryConnect } from "../context/socket";
 import { useContext } from "react";
+import Links from "../Links";
 
 const Role = () => {
   const game = useContext(GameContext);
@@ -47,7 +48,7 @@ const Role = () => {
       </Row>
       <Row className="mt-3">
         <Col>
-          <LinkContainer to="/game">
+          <LinkContainer to={Links.Game}>
             <Button>Start Game</Button>
           </LinkContainer>
         </Col>

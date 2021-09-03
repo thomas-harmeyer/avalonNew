@@ -3,6 +3,7 @@ import ButtonGroup from "react-bootstrap/ButtonGroup";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 import { LinkContainer } from "react-router-bootstrap";
+import Links from "../Links";
 
 const Welcome = () => {
   const ope = localStorage.getItem("ope");
@@ -15,10 +16,10 @@ const Welcome = () => {
       </Row>
       <Row>
         <ButtonGroup>
-          <LinkContainer to={ope ? "/lobby" : "/login"}>
+          <LinkContainer to={ope ? Links.Lobby : Links.Login}>
             <Button variant="primary">Join Game</Button>
           </LinkContainer>
-          <LinkContainer to="/about">
+          <LinkContainer to={Links.About}>
             <Button variant="outline-primary">About</Button>
           </LinkContainer>
         </ButtonGroup>
